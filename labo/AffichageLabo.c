@@ -2,34 +2,37 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_ttf.h>
 #include "AffichageLabo.h"
 
-#define SIZE_TILE 60
+#define SIZE_TILE_X 55
+#define SIZE_TILE_Y 48
+
 #define WINDOW_X 1850
 #define WINDOW_Y 1050
 
-#define TILE_X 32
-#define TILE_Y 18
+#define TILE_X 35
+#define TILE_Y 23
+
+#define Y_SHIFT 10
+#define X_SHIFT 2
 
 
 void printMat(SDL_Renderer*renderer, int**mat, int pos_x, int pos_y, int mat_x, int mat_y){
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
-
     int i = pos_y - TILE_Y/2 - 1;
     int j = pos_x - TILE_X/2 - 1;
     
     int i_to = pos_y + TILE_Y/2;
     int j_to = pos_x + TILE_X/2;
     //fprintf(stdout, "%d : %d | %d : %d | %d : %d\n", i, j, i_to, j_to,mat_y, mat_x);
-    SDL_Rect r = {0, 0, SIZE_TILE, SIZE_TILE};
+    SDL_Rect r = {-X_SHIFT, -Y_SHIFT, SIZE_TILE_X, SIZE_TILE_Y};
     for (int m=i;m<=i_to; m++) {
         //fprintf(stdout, "\n%d : ",m);
         if (m>=0 && m<mat_y){
             //fprintf(stdout, "in");
-            r.x = 0;
+            r.x = -X_SHIFT;
             for (int n=j;n<=j_to; n++) {
                 //fprintf(stdout, "%d : %d\n",m,n);
                 if (n>=0 && n<mat_x) {
@@ -55,12 +58,25 @@ void printMat(SDL_Renderer*renderer, int**mat, int pos_x, int pos_y, int mat_x, 
                     }
                     SDL_RenderFillRect(renderer, &r);
                 }
-                r.x += SIZE_TILE;
+                r.x += SIZE_TILE_X;
             }
         }
-        r.y += SIZE_TILE;
+        r.y += SIZE_TILE_Y;
     }
-    SDL_RenderPresent(renderer);
+}
+
+void printPlayer(SDL_Renderer*renderer){
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    SDL_Rect r = {955,535,10,10};
+    SDL_RenderFillRect(renderer, &r);
+}
+
+void printShadow(SDL_Renderer*renderer){
+    
+    SDL_Surface*surf = IMG_Load("./darken.png");
+    SDL_Texture*text = SDL_CreateTextureFromSurface(renderer, surf);
+    SDL_Rect r = {0,0,1920,1080};
+    SDL_RenderCopy(renderer,text, NULL,&r);
 }
 
 

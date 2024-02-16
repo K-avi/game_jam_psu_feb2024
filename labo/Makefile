@@ -13,3 +13,6 @@ matrix.o : matrix.c
 
 debug : compil test.c
 	gcc $(CFLAGS) -o test test.c AffichageLabo.o $(INCLUDE)
+
+clean : 
+	- rm *.o *~ test
