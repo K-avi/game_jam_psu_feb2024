@@ -12,6 +12,10 @@
 #define ROOM_LENGTH_MAX 4 
 
 S_MATRIX * create_matrix(unsigned row, unsigned col){
+    /*
+    cree une matrice de taille row*col dont 
+    les elements sont inities a zero 
+    */
     S_MATRIX * ret = malloc(sizeof(S_MATRIX)); 
 
     //calloc for 0 init 
@@ -28,7 +32,10 @@ S_MATRIX * create_matrix(unsigned row, unsigned col){
 }
 
 void free_matrix(S_MATRIX * mat){
-
+    /*
+    libere le contenu de la matrice mat ainsi que 
+    le pointeur de matrice mat
+    */
     for(unsigned i = 0 ; i < mat->row ; i++){
         free(mat->matrix[i]);
         mat->matrix[i] = NULL ; 
@@ -40,27 +47,29 @@ void free_matrix(S_MATRIX * mat){
 }
 
 
-
-
-
+//structure de tableau booleen pour les 
+//Calculs intermediaires
 typedef struct bool_arr{
     unsigned size ; 
     bool * arr; 
 }B_ARR;
 
-static void find_candidates(S_MATRIX * matrix, B_ARR * candidates_arr, unsigned room_width, unsigned room_length){
+static unsigned find_candidates(S_MATRIX * matrix, B_ARR * candidates_arr, unsigned room_width, unsigned room_length){
     /*
     algorithme simple : pour chaque case, regarde si la case peut etre le bord superieur 
     gauche d'un rectangle de taille room_width * room_length , 
 
     met le tableau candidates arr a vrai a l'index i*j si c'est le cas, le met a faux 
     sinon
+
+    renvoie le nombre de candidats trouves
     */
+    unsigned nb_candidats = 0 ;
     for(unsigned i = 0 ; i < matrix->row ; i++){
         
         //cas ou l'on a depasse la largeur, on ne va pas trouver de nouveaux rectangles
         if( i + room_width > matrix->row){
-               ;
+            ; //on suppose que le tableau est initialise a zero == faux
         }else{
             for(unsigned j = 0 ; j < matrix->col ; j++){
                 //cas ou l'on depasse la longueur, on ne va pas trouver de nouveaux rectangles
@@ -77,13 +86,34 @@ static void find_candidates(S_MATRIX * matrix, B_ARR * candidates_arr, unsigned 
                             }
                         }
                     }
-                    candidates_arr->arr[ j + (i*j) ] = !found ; 
+                    if(!found){
+                        candidates_arr->arr[ j + (i*j) ] = true;
+                        nb_candidats++; 
+                    }
                     //faux si l'on a trouve une case appartennant a un autre polygone, vrai sinon 
+                    //permet aux pieces de se coller, modifier si besoin de 
+                    //garantie que les pieces ne soient pas collees
                 }
             }
         }
     }
-}
+    return nb_candidats;
+}//ne pas utiliser hors des fonctions ou elle est appelee
+
+static void fill_from(S_MATRIX * matrix, unsigned start_i, unsigned start_j, unsigned val, unsigned width, unsigned length){
+    /*
+    remplis un rectangle width*len avec la valeur val a partir de l'index mat[start_i][start_j], 
+    en considerant que mat[i][j] est le coin superieur gauche du rectangle
+
+    ne verifie RIEN ne se pose PAS de questions
+    n'appel PAS memset n'est PAS efficace >:O
+    */
+    for(unsigned i = start_i; i < start_i + width; i++){
+        for (unsigned j = start_j; j < start_j +  length ; j++) {
+            matrix->matrix[i][j] = val;
+        }
+    }
+}//ne pas utiliser hors des fonctions ou elle est appelee
 
 
 static void generate_room(S_MATRIX * matrix, unsigned id_room){
@@ -99,20 +129,51 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
     candidates_arr.size = matrix->col * matrix->row ; 
     candidates_arr.arr = calloc(matrix->col * matrix->row, sizeof(unsigned)) ;
 
-    find_candidates(matrix, &candidates_arr , room_width, room_length);
+    unsigned nb_candidats =  find_candidates(matrix, &candidates_arr , room_width, room_length);
+
+    if(nb_candidats){//evite les divisions par zero
+
+        
+        unsigned choisis = rand()%nb_candidats ; //choisis un candidat au hasard
+        long long int courant = -1 ; 
+        //permet de trouver la case de depart de coloriage 
+        //parmis les cases du tableau de candidat; ce code est 
+        //vraiment sale jpp
+        for(unsigned l = 0 ; l < candidates_arr.size; l++){
+            if(candidates_arr.arr[l] == true){
+                courant++; 
+                if(courant == choisis ){
+
+                    //2 prochaines lignes peut etre fausses
+                    int start_i = l/matrix->row;
+                    int start_j = l%matrix->col; //surtout elle là
+
+                    fill_from(matrix, start_i, start_j, id_room, room_width, room_length);
+                    break; 
+                }
+            }
+        }
+    }else{
+        fprintf(stderr, "erreur dans generate_room : impossible de generer\n");
+    }
 
     free(candidates_arr.arr);
 }//assumes that the room can be fitted 
 
 static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
-    
+    /*
+    essaie de generer nb_salles dans la matrice matrix de tailles comprises entre 
+
+    ROOM_MIN_WIDTH * ROOM_MIN_LEN  
+    et 
+    ROOM_MAX_WIDTH * ROOM_MAX_LEN 
+    */
     unsigned nb_gen = 0 ; 
     while(nb_gen < nb_salles){
         generate_room(matrix, nb_gen+2);
-        nb_gen++; 
+        nb_gen++; // :)
     }
 }
-
 
 //ufind boolean to connect rooms ; 
 //not necessary -> path finding in a matrix is very easy 
