@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 
@@ -173,7 +174,7 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
         generate_room(matrix, nb_gen+2);
         nb_gen++; // :)
     }
-}
+}//PAS TESTE 
 
 //ufind boolean to connect rooms ; 
 //not necessary -> path finding in a matrix is very easy 
@@ -185,7 +186,7 @@ typedef struct simple_ufind{
 static void connect_rooms(S_MATRIX * matrix){
 
     return;
-}
+}//PAS ENCORE FAIT 
 
 S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
 
@@ -196,4 +197,13 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
 
     return ret ; 
 
+}//PAS ENCORE FAIT 
+
+void fprint_matrix(FILE * flux, S_MATRIX * mat){
+    for(unsigned i = 0 ; i < mat->row; i++){
+        for(unsigned j = 0 ; j < mat->col ; j++){
+            fprintf(flux, "%u", mat->matrix[i][j]); 
+        }
+        fprintf(flux, "\n");
+    }
 }
