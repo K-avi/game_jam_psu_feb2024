@@ -1,4 +1,4 @@
-INCLUDE = -lSDL2 -lSDL2_image -lSDL2_ttf -I/usr/include/SDL2 -lm
+INCLUDE = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -I/usr/include/SDL2 -lm
 FILES = main.c intro.c minijeux/*.c
 
 dev :
@@ -12,3 +12,6 @@ release :
 
 debug :
 	gcc main.c -o main -g -Wall -Wextra -fsanitize=address $(INCLUDE)
+
+intro :
+	gcc intro/intro.c -o intro_exec -g -Wall -Wextra $(INCLUDE)
