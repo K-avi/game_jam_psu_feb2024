@@ -2,8 +2,14 @@ CFLAG = -Wall -Wextra
 INCLUDE = -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -I/usr/include/SDL2 -lm
 
 
-compil : AffichageLabo.c
+compil : AffichageLabo.o 
+	
+
+AffichageLabo.o : AffichageLabo.c
 	gcc $(CFLAGS) -c AffichageLabo.c $(INCLUDE)
+
+matrix.o : matrix.c
+	gcc $(CFLAG) -c matrix.c $(INCLUDE)
 
 debug : compil test.c
 	gcc $(CFLAGS) -o test test.c AffichageLabo.o $(INCLUDE)
