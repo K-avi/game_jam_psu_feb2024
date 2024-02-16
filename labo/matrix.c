@@ -1,9 +1,15 @@
 #include "matrix.h"
+#include <stdbool.h>
 #include <stdlib.h>
 
-#define ROOM_SIZE_MIN 4
-#define ROOM_SIZE_MAX 9 //macro pour taille 
+
+//macro pour taille 
 //max et min des salles generees
+#define ROOM_WIDTH_MIN 2
+#define ROOM_WIDTH_MAX 4 
+
+#define ROOM_LENGTH_MIN 2 
+#define ROOM_LENGTH_MAX 4 
 
 S_MATRIX * create_matrix(unsigned row, unsigned col){
     S_MATRIX * ret = malloc(sizeof(S_MATRIX)); 
@@ -34,10 +40,7 @@ void free_matrix(S_MATRIX * mat){
 }
 
 
-typedef struct simple_ufind{
-    unsigned size ; 
-    unsigned * arr ; //should be size of row*col 
-}S_UFIND_ARR ;
+
 
 
 typedef struct bool_arr{
@@ -45,26 +48,61 @@ typedef struct bool_arr{
     bool * arr; 
 }B_ARR;
 
-static void find_candidates(S_MATRIX * matrix, U_ARR * candidates_arr, unsigned room_size){
+static void find_candidates(S_MATRIX * matrix, B_ARR * candidates_arr, unsigned room_width, unsigned room_length){
     /*
-    sets the elements of candidates arr to one if they correspond to a squa
+    algorithme simple : pour chaque case, regarde si la case peut etre le bord superieur 
+    gauche d'un rectangle de taille room_width * room_length , 
+
+    met le tableau candidates arr a vrai a l'index i*j si c'est le cas, le met a faux 
+    sinon
     */
+    for(unsigned i = 0 ; i < matrix->row ; i++){
+        
+        //cas ou l'on a depasse la largeur, on ne va pas trouver de nouveaux rectangles
+        if( i + room_width > matrix->row){
+               ;
+        }else{
+            for(unsigned j = 0 ; j < matrix->col ; j++){
+                //cas ou l'on depasse la longueur, on ne va pas trouver de nouveaux rectangles
+                if(j+room_length > matrix->col){
+                    candidates_arr->arr[ j + (i*j) ] = false ; 
+
+                }else{//on doit verifier que les cases ne sont pas occupees par un autre rectangle
+                    
+                    bool found = false ; 
+                    for(unsigned k = i ; k < i + room_width ; k++){
+                        for(unsigned l = j ; l < j + room_length ; l++ ){
+                            if(matrix->matrix[k][l]!=0){
+                                found = true ; 
+                            }
+                        }
+                    }
+                    candidates_arr->arr[ j + (i*j) ] = !found ; 
+                    //faux si l'on a trouve une case appartennant a un autre polygone, vrai sinon 
+                }
+            }
+        }
+    }
 }
+
 
 static void generate_room(S_MATRIX * matrix, unsigned id_room){
 
     //room size guess
-    unsigned rand_size = (rand()%ROOM_SIZE_MAX +1) ;
-    unsigned room_size = rand_size < ROOM_SIZE_MIN ? ROOM_SIZE_MIN : rand_size ; 
+    unsigned rand_width = (rand()%ROOM_WIDTH_MAX +1) ;
+    unsigned room_width = rand_width< ROOM_WIDTH_MIN ? ROOM_WIDTH_MIN : rand_width ; 
 
-    U_ARR candidates_arr ;
+    unsigned rand_length = (rand()%ROOM_LENGTH_MAX +1) ;
+    unsigned room_length = rand_length< ROOM_LENGTH_MIN ? ROOM_LENGTH_MIN : rand_length ;
+
+    B_ARR candidates_arr ;
     candidates_arr.size = matrix->col * matrix->row ; 
     candidates_arr.arr = calloc(matrix->col * matrix->row, sizeof(unsigned)) ;
 
+    find_candidates(matrix, &candidates_arr , room_width, room_length);
 
     free(candidates_arr.arr);
-}
-//assumes that the room can be fitted 
+}//assumes that the room can be fitted 
 
 static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
     
@@ -74,6 +112,14 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
         nb_gen++; 
     }
 }
+
+
+//ufind boolean to connect rooms ; 
+//not necessary -> path finding in a matrix is very easy 
+typedef struct simple_ufind{
+    unsigned size ; 
+    unsigned * arr ; //should be size of row*col 
+}S_UFIND_ARR ;
 
 static void connect_rooms(S_MATRIX * matrix){
 
