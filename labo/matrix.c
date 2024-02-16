@@ -7,10 +7,10 @@
 //macro pour taille 
 //max et min des salles generees
 #define ROOM_WIDTH_MIN 2
-#define ROOM_WIDTH_MAX 4 
+#define ROOM_WIDTH_MAX 3
 
 #define ROOM_LENGTH_MIN 2 
-#define ROOM_LENGTH_MAX 4 
+#define ROOM_LENGTH_MAX 4
 
 S_MATRIX * create_matrix(unsigned row, unsigned col){
     /*
@@ -88,7 +88,8 @@ static unsigned find_candidates(S_MATRIX * matrix, B_ARR * candidates_arr, unsig
                         }
                     }
                     if(!found){
-                        candidates_arr->arr[ j + (i*j) ] = true;
+                        candidates_arr->arr[(i*matrix->col) + j ] = true;
+                        //printf("nb_candidats=%u\n", nb_candidats);
                         nb_candidats++; 
                     }
                     //faux si l'on a trouve une case appartennant a un autre polygone, vrai sinon 
@@ -111,6 +112,7 @@ static void fill_from(S_MATRIX * matrix, unsigned start_i, unsigned start_j, uns
     */
     for(unsigned i = start_i; i < start_i + width; i++){
         for (unsigned j = start_j; j < start_j +  length ; j++) {
+           //printf("i=%u, j=%u\n",i,j);
             matrix->matrix[i][j] = val;
         }
     }
@@ -131,7 +133,7 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
     candidates_arr.arr = calloc(matrix->col * matrix->row, sizeof(unsigned)) ;
 
     unsigned nb_candidats =  find_candidates(matrix, &candidates_arr , room_width, room_length);
-
+    //printf("nbcandidats=%u\n", nb_candidats);
     if(nb_candidats){//evite les divisions par zero
 
         
@@ -140,17 +142,12 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
         //permet de trouver la case de depart de coloriage 
         //parmis les cases du tableau de candidat; ce code est 
         //vraiment sale jpp
-        for(unsigned l = 0 ; l < candidates_arr.size; l++){
-            if(candidates_arr.arr[l] == true){
-                courant++; 
-                if(courant == choisis ){
-
-                    //2 prochaines lignes peut etre fausses
-                    int start_i = l/matrix->row;
-                    int start_j = l%matrix->col; //surtout elle là
-
-                    fill_from(matrix, start_i, start_j, id_room, room_width, room_length);
-                    break; 
+        for(unsigned i = 0 ; i < matrix->row; i++){
+            for(unsigned j = 0 ; j < matrix->col; j++){
+                if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
+                    courant ++ ; 
+                    if(courant == choisis){
+                        fill_from(matrix, i, j, id_room, room_width, room_length);                    }
                 }
             }
         }
@@ -176,12 +173,19 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
     }
 }//PAS TESTE 
 
-//ufind boolean to connect rooms ; 
-//not necessary -> path finding in a matrix is very easy 
-typedef struct simple_ufind{
-    unsigned size ; 
-    unsigned * arr ; //should be size of row*col 
-}S_UFIND_ARR ;
+typedef struct room_connection_squares{
+    unsigned identifier ; //le coin en haut a gauche d'une 
+    //salle sert d'identifiant
+    unsigned connection_north ;
+    unsigned connection_south ; 
+    unsigned connection_east ; 
+    unsigned connection_west ; 
+}S_ROOM_CS; 
+/*
+structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
+relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
+etre utilisee hors des fonctions internes
+*/
 
 static void connect_rooms(S_MATRIX * matrix){
 
@@ -202,7 +206,7 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
 void fprint_matrix(FILE * flux, S_MATRIX * mat){
     for(unsigned i = 0 ; i < mat->row; i++){
         for(unsigned j = 0 ; j < mat->col ; j++){
-            fprintf(flux, "%u", mat->matrix[i][j]); 
+            fprintf(flux, "%u ", mat->matrix[i][j]); 
         }
         fprintf(flux, "\n");
     }
