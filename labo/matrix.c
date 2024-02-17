@@ -143,16 +143,25 @@ static void fill_from(S_MATRIX * matrix, unsigned start_i, unsigned start_j, uns
 static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned room_widht, unsigned room_length, unsigned id){
     
 
-    OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
-    obj->i = (rand()%room_widht) + i ; 
-    obj->j = (rand()%room_length) + j ; 
+    if(id != 2){
+        OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
+        obj->i = (rand()%room_widht) + i ; 
+        obj->j = (rand()%room_length) + j ; 
 
-    obj->shift_x = rand()%SIZE_TILE_X ; 
-    obj->shift_y = rand()%SIZE_TILE_Y ; 
+        obj->shift_x = rand()%SIZE_TILE_X ; 
+        obj->shift_y = rand()%SIZE_TILE_Y ; 
 
-    obj->id = id ; 
+        obj->id = id ; 
 
-    list_obj->nb_objects_cur ++ ; 
+        list_obj->nb_objects_cur ++ ; 
+    }else{
+        OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
+        obj->i = i ; 
+        obj->j = room_length + j - 1 ; 
+        obj->shift_x = 0 ; 
+        obj->shift_y = 0 ; 
+        obj->id = id ; 
+    }
 }//i'm discovering new lows when it comes to writing code
 
 static void generate_room(S_MATRIX * matrix, unsigned id_room){
@@ -294,7 +303,6 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles, unsigned nb_s
         nb_gen_small++; 
     }
 }//teste : fonctionne; comportement potentiellement a revoir
-
 
 
 typedef struct room_connection_squares{
@@ -591,7 +599,6 @@ static void draw_path_rooms_v2(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * 
         
     }
 }
-
 
 //structure locale (tableau d'u32) pour union-find
 typedef struct s_union_find{
