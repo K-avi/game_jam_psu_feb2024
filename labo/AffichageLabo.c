@@ -166,7 +166,6 @@ void print_objet(int pos_x, int pos_y, int col, int row){
         int x = (obj.j + TILE_X/2 - col)*SIZE_TILE_X + obj.shift_x - pos_x; 
         int y = (obj.i + TILE_Y/2 - row)*SIZE_TILE_Y + obj.shift_y - pos_y;
         SDL_Rect r = {x, y, l_obj[obj.id].w, l_obj[obj.id].h};
-        SDL_RenderFillRect(renderer, &r);
         SDL_RenderCopy(renderer, l_obj[obj.id].texture,NULL, &r);
     }
 }
