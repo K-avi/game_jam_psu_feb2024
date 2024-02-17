@@ -294,14 +294,45 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
     MAT_SQUARE start_1 = rcs1->start_square ; 
     MAT_SQUARE start_2 = rcs2->start_square ; 
 
-    if(start_1.i < start_2.i && start_1.j < start_2.j){
+    if(rcs1->south_square.i < rcs2->north_square.i){ //cas A et B 
+        if(rcs1->south_square.j <= rcs2->north_square.j){  //cas A
 
-    }else if(start_1.i < start_2.i && start_1.j >= start_2.j){
+            unsigned stop_i = rcs1->south_square.i + (rcs2->south_square.i - rcs1->north_square.i) ;
+            unsigned stop_j = rcs1->south_square.j + (rcs2->south_square.j - rcs1->north_square.j) ;
+            
+            for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
+                if(!matrix->matrix[i][rcs1->south_square.j]){
+                    matrix->matrix[i][rcs1->south_square.j] = 1 ; 
+                }
+            }
+            for(unsigned j = rcs1->south_square.j ; j < stop_j ; j++  ){
+                if(!matrix->matrix[stop_i][j]){
+                    matrix->matrix[stop_i][j] = 1 ; 
+                }
+            }
+        }else { //if(rcs1->south_square.j > rcs2->souht_square.j) //cas B 
+            unsigned stop_i = rcs1->south_square.i + (rcs2->south_square.i - rcs1->north_square.i) ;
+            unsigned stop_j = rcs2->south_square.j + (rcs1->south_square.j - rcs2->north_square.j) ;
 
-    }else if (start_1.i >= start_2.i && start_1.j >= start_2.j) {
-    
-    }else if (start_1.i >= start_2.i && start_1.j < start_2.j){
+            for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
+                if(!matrix->matrix[i][rcs1->south_square.j]){
+                    matrix->matrix[i][rcs1->south_square.j] = 1 ; 
+                }
+            }
+            for(unsigned j = rcs2->south_square.j ; j < stop_j ; j++){
+                if(!matrix->matrix[stop_i][j]){
+                    matrix->matrix[stop_i][j] = 1 ; 
+                }
+            }
 
+        }
+    }else if(rcs1->north_square.i < rcs2->south_square.i){ //cas E et F 
+        if(rcs1->north_square.j <= rcs2->south_square.j){
+
+        }    
+
+    }else{ //cas C et D -> traits sur les cotes (horizontaux)
+        ; 
     }
 
     return ;
@@ -362,7 +393,7 @@ static void connect_rooms_union_find(S_MATRIX * matrix){
         //trouve la liste des elements disjoints
         for(unsigned i = 0 ; i < uf.size ; i++){
             if(uf.elements[i] == i){
-                printf("dsjs_index=%u, nb_sets=%u, i=%u\n", dsjs_index, nb_sets, i);
+                //printf("dsjs_index=%u, nb_sets=%u, i=%u\n", dsjs_index, nb_sets, i);
                 disjoints_sets[dsjs_index++] = i ; 
             }
         }
@@ -373,7 +404,7 @@ static void connect_rooms_union_find(S_MATRIX * matrix){
         while(set1 == set2){
             set2 = disjoints_sets[rand()%dsjs_index];
         }
-        //ufind_union(&uf, set1, set2);
+        ufind_union(&uf, set1, set2);
         //trace un chemin entre les rectangles d'index choisis
         draw_path_rooms(matrix, &(rcs_tab->rcs_tab[set1]),  &(rcs_tab->rcs_tab[set2]) );
 
