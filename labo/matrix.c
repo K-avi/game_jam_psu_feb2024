@@ -6,11 +6,11 @@
 
 //macro pour taille 
 //max et min des salles generees
-#define ROOM_WIDTH_MIN 2
-#define ROOM_WIDTH_MAX 3
+#define ROOM_WIDTH_MIN 3
+#define ROOM_WIDTH_MAX 5
 
-#define ROOM_LENGTH_MIN 2 
-#define ROOM_LENGTH_MAX 4
+#define ROOM_LENGTH_MIN 3 
+#define ROOM_LENGTH_MAX 5
 
 S_MATRIX * create_matrix(unsigned row, unsigned col){
     /*
@@ -297,10 +297,11 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
     if(rcs1->south_square.i < rcs2->north_square.i){ //cas A et B 
         if(rcs1->south_square.j <= rcs2->north_square.j){  //cas A
 
-            unsigned stop_i = rcs1->south_square.i + (rcs2->south_square.i - rcs1->north_square.i) ;
-            unsigned stop_j = rcs1->south_square.j + (rcs2->south_square.j - rcs1->north_square.j) ;
+            unsigned stop_i = rcs1->south_square.i + (rcs2->north_square.i - rcs1->south_square.i) ;
+            unsigned stop_j = rcs1->south_square.j + (rcs2->north_square.j - rcs1->south_square.j) ;
             
             for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
+                 printf("case A i=%u, rcs1.south.i=%u\n", i , rcs1->south_square.i);
                 if(!matrix->matrix[i][rcs1->south_square.j]){
                     matrix->matrix[i][rcs1->south_square.j] = 1 ; 
                 }
@@ -311,32 +312,103 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
                 }
             }
         }else { //if(rcs1->south_square.j > rcs2->souht_square.j) //cas B 
-            unsigned stop_i = rcs1->south_square.i + (rcs2->south_square.i - rcs1->north_square.i) ;
-            unsigned stop_j = rcs2->south_square.j + (rcs1->south_square.j - rcs2->north_square.j) ;
+            unsigned stop_i = rcs1->south_square.i + (rcs2->north_square.i - rcs1->south_square.i) ;
+            unsigned stop_j = rcs2->north_square.j + (rcs1->south_square.j - rcs2->north_square.j) ;
 
             for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
+                printf("case B i=%u, rcs1.south.j=%u\n", i , rcs1->south_square.j);
                 if(!matrix->matrix[i][rcs1->south_square.j]){
                     matrix->matrix[i][rcs1->south_square.j] = 1 ; 
                 }
             }
-            for(unsigned j = rcs2->south_square.j ; j < stop_j ; j++){
+            for(unsigned j = rcs2->north_square.j ; j < stop_j ; j++){
                 if(!matrix->matrix[stop_i][j]){
                     matrix->matrix[stop_i][j] = 1 ; 
                 }
             }
 
         }
-    }else if(rcs1->north_square.i < rcs2->south_square.i){ //cas E et F 
-        if(rcs1->north_square.j <= rcs2->south_square.j){
+    }else if(rcs1->north_square.i > rcs2->south_square.i){ //cas E et F 
+        if(rcs1->north_square.j > rcs2->south_square.j){//cas E 
+            unsigned stop_i = rcs2->south_square.i + (rcs1->north_square.i - rcs2->south_square.i);
+            unsigned stop_j = rcs2->south_square.j + (rcs1->north_square.j - rcs2->south_square.j);
 
-        }    
+            for(unsigned i = rcs2->south_square.i ; i < stop_i ; i ++){
+                 printf("case C i=%u, rcs2.south.i=%u\n", i , rcs2->south_square.i);
+                if(!matrix->matrix[i][stop_j]){
+                    matrix->matrix[i][stop_j] = 1 ; 
+                }
+            }
+            for(unsigned j = rcs2->south_square.j ; j < stop_j ; j++){
+                if(!matrix->matrix[rcs2->south_square.i][j]){
+                    matrix->matrix[rcs2->south_square.i][j] = 1 ; 
+                }
+            }
+        }else{ //cas F
+            unsigned stop_i = rcs2->south_square.i + (rcs1->north_square.i - rcs2->south_square.i);
+            unsigned stop_j = rcs1->north_square.j + (rcs2->south_square.j - rcs1->north_square.j);
+
+            for(unsigned i = rcs2->south_square.i ; i < stop_i ; i ++){
+                if(!matrix->matrix[i][rcs1->north_square.j]){
+                    matrix->matrix[i][rcs1->north_square.j] = 1 ; 
+                }
+            }
+            for(unsigned j = rcs1->north_square.j ; j < stop_j; j++){
+                if(!matrix->matrix[stop_i][j]){
+                    matrix->matrix[stop_i][j] = 1 ; 
+                }
+            }
+        }
 
     }else{ //cas C et D -> traits sur les cotes (horizontaux)
-        ; 
+        if(rcs1->west_square.j > rcs2->east_square.j){ //cas C
+            unsigned stop_j = rcs2->east_square.j + (rcs1->west_square.j - rcs2->east_square.j ) ;
+            
+            
+            for(unsigned j = rcs2->east_square.j ; j < stop_j ; j++){
+                
+                if(!matrix->matrix[rcs2->east_square.i][j]){
+                    matrix->matrix[rcs2->east_square.i][j] = 1 ; 
+                }
+            }
+            unsigned min_i = rcs2->east_square.i < rcs1->west_square.i ? rcs2->east_square.i : rcs2->west_square.i; 
+            unsigned max_i = rcs2->east_square.i < rcs1->west_square.i ? rcs1->west_square.i : rcs2->east_square.i;
+
+            unsigned stop_i = min_i + (max_i - min_i); 
+
+            for(unsigned i = min_i; i < stop_i ; i++){
+                if(!matrix->matrix[i][stop_j]){
+                    matrix->matrix[i][stop_j] = 1 ; 
+                }
+            } 
+        }else{ //cas D 
+            unsigned stop_j = rcs1->west_square.j + (rcs2->east_square.j - rcs1->west_square.j) ;
+
+            for(unsigned j = rcs1->west_square.j ; j < stop_j ; j++){
+                
+                if(j < matrix->row){
+                    if(!matrix->matrix[rcs1->west_square.i][j]){
+                        matrix->matrix[rcs1->west_square.i][j] = 1 ; 
+                    }
+                }
+            }
+
+            unsigned min_i = rcs2->east_square.i < rcs1->west_square.i ? rcs2->east_square.i : rcs2->west_square.i; 
+            unsigned max_i = rcs2->east_square.i < rcs1->west_square.i ? rcs1->west_square.i : rcs2->east_square.i;
+
+            unsigned stop_i = min_i + (max_i - min_i); 
+
+            for(unsigned i = min_i; i < stop_i ; i++){
+                if(!matrix->matrix[i][stop_j]){
+                    matrix->matrix[i][stop_j] = 1 ; 
+                }
+            } 
+        }
     }
 
     return ;
 }//fonction statique, pas utiliser 
+//  oiqùjvspoimjvmodsjfm<kedovùpswkv
 
 //structure locale (tableau d'u32) pour union-find
 typedef struct s_union_find{
