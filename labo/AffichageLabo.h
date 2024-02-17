@@ -2,7 +2,7 @@
 #define AFFICHAGE_LABO_H 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
-#include "../timer/timer.c"
+#include "../timer/timer.h"
 
 void create_shadow();
 void free_shadow();

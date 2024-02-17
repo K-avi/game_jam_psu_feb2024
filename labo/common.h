@@ -7,7 +7,7 @@
 #include <unistd.h> 
 #include <stdbool.h>
 #include <SDL2/SDL.h>
-#include "../timer/timer.c"
+#include "../timer/timer.h"
 
 
 

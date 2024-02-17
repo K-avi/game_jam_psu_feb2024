@@ -9,18 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../timer/timer.c"
+#include "intro.h"
+#include "../timer/timer.h"
 
 #ifndef WINDOW_SIZE
 #define WINDOW_SIZE
-const int WIN_X = 1000;
-const int WIN_Y = 600;
+#define WIN_X 1000
+#define WIN_Y 600
 #endif
-
-typedef struct {
-    const char* text;
-    const char* emote_path;
-} Dialog;
 
 int strlen2(const char* str) {
     int i = 0;
@@ -29,11 +25,6 @@ int strlen2(const char* str) {
     }
     return i;
 }
-
-typedef struct {
-    SDL_Texture* texture;
-    SDL_Rect dest;
-} Image;
 
 void display_text_image(SDL_Renderer* renderer, TTF_Font* font, const char* text, const char* emote, Mix_Music** sfx, int sfx_count, Image* bg, Timer* timer) {
 

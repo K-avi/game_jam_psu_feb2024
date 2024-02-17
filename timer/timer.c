@@ -1,5 +1,4 @@
-#ifndef TIMER_C
-#define TIMER_C
+#include "timer.h"
 
 #include <SDL2/SDL_image.h>
 #include <stdlib.h>
@@ -10,8 +9,8 @@
 
 #ifndef WINDOW_SIZE
 #define WINDOW_SIZE
-const int WIN_X = 1000;
-const int WIN_Y = 600;
+#define WIN_X 1000
+#define WIN_Y 600
 #endif
 
 // Load image from file
@@ -24,18 +23,6 @@ SDL_Surface* load_image(const char* filename) {
     return img;
 }
 
-typedef struct {
-    int current_time;
-    int time_max;
-    SDL_Surface* timer;
-    SDL_Surface* background;
-    SDL_Surface* texture;
-    TTF_Font* font;
-    SDL_Rect dest_timer;
-    SDL_Rect dest_text;
-    SDL_Rect dest_background;
-} Timer;
-
 Timer* create_timer(int time_max, char* background_path, char* timer_path, SDL_Renderer* renderer, TTF_Font* font) {
     Timer* timer = malloc(sizeof(Timer));
     if (timer == NULL) {
@@ -47,10 +34,10 @@ Timer* create_timer(int time_max, char* background_path, char* timer_path, SDL_R
     timer->font = font;
     timer->background = load_image(background_path);
     timer->timer = load_image(timer_path);
-    timer->dest_timer.x = WIN_X - 100;
-    timer->dest_timer.y = 70;
-    timer->dest_timer.w = 100;
-    timer->dest_timer.h = 100;
+    timer->dest_timer.x = WIN_X - 140;
+    timer->dest_timer.y = 40;
+    timer->dest_timer.w = 160;
+    timer->dest_timer.h = 160;
     timer->dest_background.x = WIN_X - 150;
     timer->dest_background.y = -100;
     timer->dest_background.w = 200;
@@ -70,6 +57,21 @@ int is_timer_finished(Timer* timer) {
         return 0;
     }
     return timer->current_time >= timer->time_max;
+}
+
+void render_line(Timer* timer, SDL_Renderer* renderer) {
+    if (timer == NULL) {
+        return;
+    }
+    // make a line that rotates around a point depending on the percentage of time
+    int center_x = WIN_X - 35;
+    int center_y = 125;
+    int radius = 20;
+    int angle = (timer->current_time * 360) / timer->time_max;
+    int x = center_x + radius * cos(angle * 3.14159 / 180);
+    int y = center_y + radius * sin(angle * 3.14159 / 180);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderDrawLine(renderer, center_x, center_y, x, y);
 }
 
 void render_timer(Timer* timer, SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
@@ -97,6 +99,6 @@ void render_timer(Timer* timer, SDL_Window* window, SDL_Renderer* renderer, TTF_
     SDL_DestroyTexture(text_texture);
     SDL_FreeSurface(text_surface);
 
-}
+    render_line(timer, renderer);
 
-#endif
+}

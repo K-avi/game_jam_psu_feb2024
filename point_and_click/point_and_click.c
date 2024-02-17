@@ -11,53 +11,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../timer/timer.c"
+#include "point_and_click.h"
 
 #ifndef WINDOW_SIZE
 #define WINDOW_SIZE
-const int WIN_X = 1000;
-const int WIN_Y = 600;
+#define WIN_X 1000
+#define WIN_Y 600
 #endif
-
-typedef struct {
-    char* bottle_type;
-    int nb_bottles;
-} Recipe;
-
-typedef struct {
-    int x, y;
-} BottleSpot;
-
-typedef struct {
-    SDL_Texture* texture;
-    SDL_Rect dest;
-    char* type;
-} Bottle;
-
-typedef struct {
-    int x, y;
-    SDL_Texture* texture;
-} Pot;
-
-typedef struct {
-    SDL_Texture* background;
-    SDL_Rect dest;
-    Bottle* bottles;
-    int bottle_count;
-    Recipe* recipe;
-    int recipe_size;
-    Pot* pot;
-} Scene;
-
-typedef struct {
-    char* bottle_type;
-    int nb_bottles;
-} SceneInfo;
-
-typedef struct {
-    int click_x, click_y;
-    Bottle* bottle_grabbed;
-} ClickInfo;
 
 char* types[] = {"big_orange_round_bottle",
 "big_pink_cylinder_bottle",

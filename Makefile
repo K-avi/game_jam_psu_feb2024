@@ -5,7 +5,7 @@ test_matrix :
 	gcc test_matrix.c labo/matrix.c -g -Og -o test_matrix
 
 dev :
-	gcc main.c -o main -Wall -Wextra $(INCLUDE)
+	gcc main.c */*.c -o main -Wall -Wextra $(INCLUDE)
 
 clang :
 	clang main.c -o main -Wall -Wextra $(INCLUDE)

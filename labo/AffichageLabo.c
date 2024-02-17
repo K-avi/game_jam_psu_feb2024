@@ -8,7 +8,7 @@
 #include <SDL2/SDL_ttf.h>
 #include "AffichageLabo.h"
 #include "matrix.h"
-#include "../timer/timer.c"
+#include "../timer/timer.h"
 
 extern const int WINDOW_SIZE_X;
 extern const int WINDOW_SIZE_Y;

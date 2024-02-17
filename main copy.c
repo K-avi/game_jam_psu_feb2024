@@ -1,5 +1,7 @@
-#include "point_and_click/point_and_click.h"
-#include "intro/intro.h"
+
+#include "intro/intro.c"
+#include "point_and_click/point_and_click.c"
+#include "timer/timer.c"
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_video.h>
 #include <stdlib.h>
@@ -7,19 +9,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include "labo/common.h"
-#include "labo/AffichageLabo.h"
-#include "labo/matrix.h"
-#include "timer/timer.h"
+
 
 #ifndef WINDOW_SIZE
 #define WINDOW_SIZE
 #define WIN_X 1000
 #define WIN_Y 600
 #endif
-
-extern const int WINDOW_SIZE_X;
-extern const int WINDOW_SIZE_Y;
 
 Uint32 timer_callback(Uint32 interval, void* param) {
 	Timer* timer = (Timer*)param;
@@ -83,43 +79,10 @@ int main() {
     srand(time(NULL));
 
     intro(renderer, window, font);
-	Timer* timer = create_timer(300, "timer/assets/background.png", "asset/compteur.png", renderer, font);
+	Timer* timer = create_timer(300, "timer/assets/background.png", "timer/assets/timer.png", renderer, font);
 
 	// Run timer in a separate thread with the callback
 	SDL_AddTimer(1000, timer_callback, timer);
-
-
-
-	SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-	window = SDL_CreateWindow("test labo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_SIZE_X, WINDOW_SIZE_Y,  SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-	int nb_col = 15;
-	int nb_row = 15;
-    init_laboratoire(renderer, nb_col,nb_row,5, 2);
-    laboratoire_loop(window, renderer,font, timer,5);
-
-    //free
-    end_Laboratoire();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-	window =
-	    SDL_CreateWindow("Game Jam", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-				   WIN_X, WIN_Y, SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
-	if (!window) {
-		fprintf(stderr, "Error window creation");
-		exit(2);
-	}
-
-	renderer = SDL_CreateRenderer(
-	    window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
-		fprintf(stderr, "Error renderer creation");
-		exit(3);
-	}	
 
 
 	intro_point_and_click(renderer, window, font, timer);
@@ -140,4 +103,3 @@ int main() {
 	TTF_Quit();
 	SDL_Quit();
 }
-

@@ -5,16 +5,18 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_ttf.h>
 #include <unistd.h>
-#include "../timer/timer.c"
+#include "matrix.h"
+#include "AffichageLabo.h"
+#include "../timer/timer.h"
 
-
+/*
 #ifndef AFFICHAGE_LABO_H
 #include "AffichageLabo.h"
 #endif
 #ifndef MATRIX_H
 #include "matrix.h"
 #endif
-
+*/
 const int WINDOW_SIZE_X = 1920;
 const int WINDOW_SIZE_Y = 1080;
 
