@@ -7,6 +7,7 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_ttf.h>
 #include "AffichageLabo.h"
+#include "matrix.h"
 
 extern const int WINDOW_SIZE_X;
 extern const int WINDOW_SIZE_Y;
@@ -26,12 +27,20 @@ int Y_SHIFT = 55;
 const int SPEED_X = 6;
 const int SPEED_Y = 6;
 
+extern OBJ_LIST global_object_list ;
 
-
-
+SDL_Renderer*renderer;
 SDL_Texture*shadow;
-SDL_Texture**l_text_obj;
-void init_affichage(){
+
+typedef struct obj_t{
+    int w, h;
+    SDL_Texture*texture;
+}obj;
+obj*l_obj;
+
+
+void init_affichage(SDL_Renderer*rend){
+    renderer = rend;
     TILE_X = (WINDOW_SIZE_X / SIZE_TILE_X) + ((WINDOW_SIZE_X % SIZE_TILE_X)?1:0);
     TILE_Y = (WINDOW_SIZE_Y / SIZE_TILE_Y) + ((WINDOW_SIZE_Y % SIZE_TILE_Y)?1:0);
     PLAYER_SIZE_X = SIZE_TILE_X/5;
@@ -40,7 +49,7 @@ void init_affichage(){
     Y_SHIFT = (SIZE_TILE_Y*(TILE_Y-1) - WINDOW_SIZE_Y)/2 - PLAYER_SIZE_Y/2;
 }
 
-void create_shadow(SDL_Renderer*renderer) {
+void create_shadow() {
     SDL_Surface*surf = IMG_Load("./darken.png");
     shadow = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_FreeSurface(surf);
@@ -48,19 +57,48 @@ void create_shadow(SDL_Renderer*renderer) {
 void free_shadow() {
     SDL_DestroyTexture(shadow);
 }
-void create_objet_texture(){
-    l_text_obj = (SDL_Texture**)malloc(sizeof(SDL_Texture*)*10);
-    SDL_Surface*tmp;
-    tmp = IMG_Load("");
+
+
+
+
+void create_objects(){
+    l_obj = (obj*)malloc(sizeof(obj)*5);
+    SDL_Surface*surf;
+    surf = IMG_Load("../asset/coin_expe.png");
+    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[0].w = 390;
+    l_obj[0].h = 250;
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("../asset/bureau_debut.png");
+    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[0].w = 200;
+    l_obj[0].h = 150;
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("../asset/bureau_recette.png");
+    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[0].w = 100;
+    l_obj[0].h = 200;
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("../asset/eau_remplie.png");
+    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[0].w = 100;
+    l_obj[0].h = 100;
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("../asset/eau_vide.png");
+    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[0].w = 100;
+    l_obj[0].h = 100;
+    SDL_FreeSurface(surf);
+    
 }
-void free_objects(objet*l_obj){
-    if (!l_obj)return;
-    objet*nxt = l_obj->next;
+void free_objects(){
+    for(int i=0;i<5;i++){
+        SDL_DestroyTexture(l_obj[i].texture);
+    }
     free(l_obj);
-    free_objects(nxt);
 }
 
-void print_mat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x, int mat_y){
+void print_mat(unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x, int mat_y){
     //start
     int i = row - TILE_Y/2;
     int j = col - TILE_X/2;
@@ -117,23 +155,23 @@ void print_mat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int c
     }
 }
 
-void print_objet(SDL_Renderer*renderer, objet*l_obj, int pos_x, int pos_y, int col, int row){
-    if (!l_obj) return;
-    int test = ((col - TILE_X/2 - 1) <= l_obj->col) &&
-        ((col + TILE_X/2) >= l_obj->col) &&
-        ((row - TILE_Y/2 - 1) <= l_obj->row) &&
-        ((row + TILE_Y/2) >= l_obj->row);
-    if (test) {
-        int x = (l_obj->col + TILE_X/2 - col)*SIZE_TILE_X + l_obj->x - pos_x; 
-        int y = (l_obj->row + TILE_Y/2 - row)*SIZE_TILE_Y + l_obj->y - pos_y;
-        SDL_Rect r = {x, y, l_obj->w, l_obj->h};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        SDL_RenderFillRect(renderer, &r);
+void print_objet(int pos_x, int pos_y, int col, int row){
+    for (int m=0; m<global_object_list.nb_objects_cur;m++){
+        OBJ_INFOS obj = global_object_list.list[m];
+        int test = ((col - TILE_X/2 - 1) <= obj.i) &&
+            ((col + TILE_X/2) >= obj.i) &&
+            ((row - TILE_Y/2 - 1) <= obj.j) &&
+            ((row + TILE_Y/2) >= obj.j);
+        if (test){
+            int x = (obj.i + TILE_X/2 - col)*SIZE_TILE_X + obj.shift_x - pos_x; 
+            int y = (obj.j + TILE_Y/2 - row)*SIZE_TILE_Y + obj.shift_y - pos_y;
+            SDL_Rect r = {x, y, l_obj[obj.id].w, l_obj[obj.id].h};
+            SDL_RenderCopy(renderer, l_obj[obj.id].texture,NULL, &r);
+        }
     }
-    print_objet(renderer, l_obj->next, pos_x, pos_y, col, row);
 }
 
-void print_player(SDL_Renderer*renderer, int dx, int dy){
+void print_player(int dx, int dy){
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     SDL_Rect r = {(WINDOW_SIZE_X - PLAYER_SIZE_X)/2 ,(WINDOW_SIZE_Y - PLAYER_SIZE_Y)/2,PLAYER_SIZE_X,PLAYER_SIZE_Y};
     SDL_RenderFillRect(renderer, &r);
@@ -141,7 +179,7 @@ void print_player(SDL_Renderer*renderer, int dx, int dy){
     SDL_RenderDrawLine(renderer,WINDOW_SIZE_X/2,WINDOW_SIZE_Y/2,WINDOW_SIZE_X/2+dx*PLAYER_SIZE_X,WINDOW_SIZE_Y/2+dy*PLAYER_SIZE_Y);
 }
 
-void print_shadow(SDL_Renderer*renderer){
+void print_shadow(){
     SDL_Rect r = {0,0,WINDOW_SIZE_X,WINDOW_SIZE_Y};
     SDL_RenderCopy(renderer,shadow, NULL,&r);
 }
@@ -210,7 +248,7 @@ int event_loop(int*vx,int*vy,int*dx,int*dy){
     return -1;
 }
 
-void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat, objet*l_obj){
+void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat){
     ///*
     int nx = *pos_x;
     int ny = *pos_y;

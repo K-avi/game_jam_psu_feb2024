@@ -20,8 +20,6 @@ const int WINDOW_SIZE_Y = 1080;
 
 S_MATRIX*matrice;
 
-objet*l_obj;
-
 unsigned nb_col;
 unsigned nb_row;
 
@@ -65,22 +63,15 @@ void init_laboratoire(unsigned cols, unsigned rows, unsigned salles, unsigned p_
 
     find_salle(matrice, &pos_col, &pos_row);
 
-
-    create_shadow(renderer);
-    l_obj = (objet*)malloc(sizeof(objet));//create_objects(renderer);
-    l_obj->col = 5;
-    l_obj->row = 5;
-    l_obj->x = 30;
-    l_obj->y = 20;
-    l_obj->w = 60;
-    l_obj->h = 40;
-    l_obj->next = NULL;
-    init_affichage();
+    init_affichage(renderer);
+    create_shadow();
+    create_objects();
+    
 }
 void end_Laboratoire(){
     free_matrix(matrice);
     free_shadow();
-    free_objects(l_obj);
+    free_objects();
 }
 
 void laboratoire_loop(){
@@ -91,9 +82,9 @@ void laboratoire_loop(){
         SDL_RenderClear(renderer);
 
         //print on screen
-        print_mat(renderer, matrice->matrix, pos_x, pos_y, pos_col, pos_row, nb_col, nb_row);
-        print_objet(renderer, l_obj, pos_x, pos_y, pos_col, pos_row);
-        print_player(renderer,dx,dy);
+        print_mat(matrice->matrix, pos_x, pos_y, pos_col, pos_row, nb_col, nb_row);
+        print_objet(pos_x, pos_y, pos_col, pos_row);
+        print_player(dx,dy);
         //print_shadow(renderer);
 
         //render
@@ -101,7 +92,7 @@ void laboratoire_loop(){
 
         //event
         ev = event_loop(&vx, &vy, &dx, &dy);
-        calc_move(&pos_col, &pos_row, &pos_x, &pos_y, vx, vy, nb_col, nb_row, matrice->matrix,l_obj);
+        calc_move(&pos_col, &pos_row, &pos_x, &pos_y, vx, vy, nb_col, nb_row, matrice->matrix);
         //if (ev==2){
             //test use event
         //}
