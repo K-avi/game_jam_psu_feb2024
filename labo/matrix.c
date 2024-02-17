@@ -165,7 +165,7 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
         obj->id = 1 ; 
 
         list_obj->nb_objects_cur ++ ; 
-    }else if(id == 3 ){
+    }else if(id == 255 ){
         OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
         obj->i = (rand()%room_widht) + i ; 
         obj->j = (rand()%room_length) + j ; 
@@ -288,7 +288,7 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room, MAT_SQUARE 
                         petites_salles_ref->i = i ; 
                         petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
-                        place_object( &global_object_list, i,j, room_width, room_length, 3);
+                        place_object( &global_object_list, i,j, room_width, room_length, 255);
 
                         goto end_loop;
                     }
@@ -302,7 +302,7 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room, MAT_SQUARE 
                         petites_salles_ref->i = i ; 
                         petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
-                        place_object( &global_object_list, i,j, room_width, room_length, id_room);
+                        place_object( &global_object_list, i,j, room_width, room_length, 255);
 
                         goto end_loop; 
                     }
@@ -736,6 +736,11 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsig
             }
         }
     }
+    /*
+    for(unsigned i = 0 ; i < global_object_list.nb_objects_cur ; i++){
+        printf("id=%u posi=%u posx=%u\n",global_object_list.list[i].id ,global_object_list.list[i].i, global_object_list.list[i].j);
+        printf("mat[i][j]=%u\n", ret->matrix[global_object_list.list[i].i][global_object_list.list[i].j]);
+    }*/
 
     free(petites_salles_arr);
     return ret ; 
