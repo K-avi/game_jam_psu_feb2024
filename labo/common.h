@@ -14,6 +14,6 @@
 #endif
 
 
-void init_laboratoire(unsigned cols, unsigned rows, unsigned salles, unsigned p_salles);
+void init_laboratoire(SDL_Renderer*rend, unsigned cols, unsigned rows, unsigned salles, unsigned p_salles);
 void end_Laboratoire();
-void laboratoire_loop();
+void laboratoire_loop(SDL_Renderer*rend);

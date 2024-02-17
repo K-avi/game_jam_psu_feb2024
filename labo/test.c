@@ -25,9 +25,9 @@ int main(int argc,char**argv){
     SDL_Window*w = SDL_CreateWindow("test labo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_SIZE_X, WINDOW_SIZE_Y,  SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
     SDL_Renderer*renderer = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    init_laboratoire(nb_col,nb_row,3, 2);
+    init_laboratoire(renderer, nb_col,nb_row,3, 2);
 
-    laboratoire_loop();
+    laboratoire_loop(renderer);
 
     //free
     end_Laboratoire();

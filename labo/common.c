@@ -13,8 +13,6 @@
 #include "matrix.h"
 #endif
 
-extern SDL_Renderer*renderer;
-
 const int WINDOW_SIZE_X = 1920;
 const int WINDOW_SIZE_Y = 1080;
 
@@ -49,7 +47,7 @@ void find_salle(S_MATRIX*mat,int*x,int*y){
     *y = 0;
 }
 
-void init_laboratoire(unsigned cols, unsigned rows, unsigned salles, unsigned p_salles){
+void init_laboratoire(SDL_Renderer*rend, unsigned cols, unsigned rows, unsigned salles, unsigned p_salles){
     nb_col = cols;
     nb_row = rows;
 
@@ -63,7 +61,7 @@ void init_laboratoire(unsigned cols, unsigned rows, unsigned salles, unsigned p_
 
     find_salle(matrice, &pos_col, &pos_row);
 
-    init_affichage(renderer);
+    init_affichage(rend);
     create_shadow();
     create_objects();
     
@@ -74,7 +72,7 @@ void end_Laboratoire(){
     free_objects();
 }
 
-void laboratoire_loop(){
+void laboratoire_loop(SDL_Renderer*renderer){
     int ev=1;;
     while(ev){
         //clear
