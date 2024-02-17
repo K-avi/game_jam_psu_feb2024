@@ -8,49 +8,85 @@
 #include <SDL2/SDL_ttf.h>
 #include "AffichageLabo.h"
 
-#define SIZE_TILE_X 105
-#define SIZE_TILE_Y 100
+extern const int WINDOW_SIZE_X;
+extern const int WINDOW_SIZE_Y;
 
-#define TILE_X 19
-#define TILE_Y 11
+const int SIZE_TILE_X = 200;
+const int SIZE_TILE_Y = 200;
 
-#define X_SHIFT 37
-#define Y_SHIFT 10
+int TILE_X;
+int TILE_Y;
 
-#define SPEED_X 2
-#define SPEED_Y 2
+int PLAYER_SIZE_X;
+int PLAYER_SIZE_Y;
+
+int X_SHIFT; 
+int Y_SHIFT = 55;
+
+const int SPEED_X = 6;
+const int SPEED_Y = 6;
+
+
+
 
 SDL_Texture*shadow;
+SDL_Texture**l_text_obj;
+void init_affichage(){
+    TILE_X = (WINDOW_SIZE_X / SIZE_TILE_X) + ((WINDOW_SIZE_X % SIZE_TILE_X)?1:0);
+    TILE_Y = (WINDOW_SIZE_Y / SIZE_TILE_Y) + ((WINDOW_SIZE_Y % SIZE_TILE_Y)?1:0);
+    PLAYER_SIZE_X = SIZE_TILE_X/5;
+    PLAYER_SIZE_Y = SIZE_TILE_Y/5;
+    X_SHIFT = (SIZE_TILE_X*(TILE_X-1) - WINDOW_SIZE_X)/2 + PLAYER_SIZE_X/2;
+    Y_SHIFT = (SIZE_TILE_Y*(TILE_Y-1) - WINDOW_SIZE_Y)/2 - PLAYER_SIZE_Y/2;
+}
 
-
-void create_shadow(SDL_Renderer*renderer){
+void create_shadow(SDL_Renderer*renderer) {
     SDL_Surface*surf = IMG_Load("./darken.png");
     shadow = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_FreeSurface(surf);
 }
-void free_shadow(){
+void free_shadow() {
     SDL_DestroyTexture(shadow);
+}
+void create_objet_texture(){
+    l_text_obj = (SDL_Texture**)malloc(sizeof(SDL_Texture*)*10);
+    SDL_Surface*tmp;
+    tmp = IMG_Load("");
+}
+void free_objects(objet*l_obj){
+    if (!l_obj)return;
+    objet*nxt = l_obj->next;
+    free(l_obj);
+    free_objects(nxt);
 }
 
 void print_mat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x, int mat_y){
-    int i = row - TILE_Y/2 - 1;
-    int j = col - TILE_X/2 - 1;
+    //start
+    int i = row - TILE_Y/2;
+    int j = col - TILE_X/2;
 
-    int y_shift = Y_SHIFT - pos_y;
-    int x_shift = X_SHIFT - pos_x;
-    
+    //end
     int i_to = row + TILE_Y/2;
     int j_to = col + TILE_X/2;
-    //fprintf(stdout, "%d : %d | %d : %d | %d : %d\n", i, j, i_to, j_to,mat_y, mat_x);
-    SDL_Rect r = {x_shift, y_shift, SIZE_TILE_X-2, SIZE_TILE_Y-2};
-    for (int m=i;m<=i_to; m++) {
-        //fprintf(stdout, "\n%d : ",m);
-        if (m>=0 && m<mat_y){
-            //fprintf(stdout, "in");
-            r.x = x_shift;
-            for (int n=j;n<=j_to; n++) {
-                //fprintf(stdout, "%d : %d\n",m,n);
-                if (n>=0 && n<mat_x) {
+
+    //screen shift
+    int y_shift = Y_SHIFT - pos_y - ((TILE_Y%2)?0:SIZE_TILE_Y);
+    int x_shift = X_SHIFT - pos_x - ((TILE_X%2)?0:SIZE_TILE_X);
+
+    //rec
+    SDL_Rect r = {x_shift+1, y_shift+1, SIZE_TILE_X-2, SIZE_TILE_Y-2};
+
+    //loop matrice y
+    for (int m=i-1;m<=i_to+1; m++) {
+        if (m>=0 && m<mat_y){ //test indice bon
+            //init x a 0
+            r.x = x_shift+1;
+            
+            //loop matrice x
+            for (int n=j-1;n<=j_to+1; n++) {
+                if (n>=0 && n<mat_x) { //test indice bon
+
+                    //couleur
                     switch (mat[m][n]) {
                         case 0:
                             SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
@@ -71,6 +107,7 @@ void print_mat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int c
                             SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
                             break;
                     }
+                    //show
                     SDL_RenderFillRect(renderer, &r);
                 }
                 r.x += SIZE_TILE_X;
@@ -80,16 +117,32 @@ void print_mat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int c
     }
 }
 
+void print_objet(SDL_Renderer*renderer, objet*l_obj, int pos_x, int pos_y, int col, int row){
+    if (!l_obj) return;
+    int test = ((col - TILE_X/2 - 1) <= l_obj->col) &&
+        ((col + TILE_X/2) >= l_obj->col) &&
+        ((row - TILE_Y/2 - 1) <= l_obj->row) &&
+        ((row + TILE_Y/2) >= l_obj->row);
+    if (test) {
+        int x = (l_obj->col + TILE_X/2 - col)*SIZE_TILE_X + l_obj->x - pos_x; 
+        int y = (l_obj->row + TILE_Y/2 - row)*SIZE_TILE_Y + l_obj->y - pos_y;
+        SDL_Rect r = {x, y, l_obj->w, l_obj->h};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &r);
+    }
+    print_objet(renderer, l_obj->next, pos_x, pos_y, col, row);
+}
+
 void print_player(SDL_Renderer*renderer, int dx, int dy){
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    SDL_Rect r = {950,530,20,20};
+    SDL_Rect r = {(WINDOW_SIZE_X - PLAYER_SIZE_X)/2 ,(WINDOW_SIZE_Y - PLAYER_SIZE_Y)/2,PLAYER_SIZE_X,PLAYER_SIZE_Y};
     SDL_RenderFillRect(renderer, &r);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderDrawLine(renderer,960,540,960+dx*20,540+dy*20);
+    SDL_RenderDrawLine(renderer,WINDOW_SIZE_X/2,WINDOW_SIZE_Y/2,WINDOW_SIZE_X/2+dx*PLAYER_SIZE_X,WINDOW_SIZE_Y/2+dy*PLAYER_SIZE_Y);
 }
 
 void print_shadow(SDL_Renderer*renderer){
-    SDL_Rect r = {0,0,1920,1080};
+    SDL_Rect r = {0,0,WINDOW_SIZE_X,WINDOW_SIZE_Y};
     SDL_RenderCopy(renderer,shadow, NULL,&r);
 }
 
@@ -157,48 +210,62 @@ int event_loop(int*vx,int*vy,int*dx,int*dy){
     return -1;
 }
 
-void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat){
-    if (vx) {
-        *pos_x += vx*SPEED_X;
-        if (*pos_x<0) {
-            *pos_x = (*col)?
-                *pos_x + SIZE_TILE_X:
-                *pos_x - vx*SPEED_X;
-            *col = (*col)?
-                (*col-1):
-                0;
+void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat, objet*l_obj){
+    ///*
+    int nx = *pos_x;
+    int ny = *pos_y;
+    int ncol = *col;
+    int nrow = *row;
+    if (vx){
+        nx += (vy)?vx*SPEED_X*2/3:vx*SPEED_X;
+        if (nx<0){
+            if (ncol-1>=0 && mat[nrow][ncol-1]!=0){
+                nx += SIZE_TILE_X;
+                ncol --;
+            } else {
+                nx = 0; //change to fit player
+            }
+            goto mv_next1;
         }
-        if (*pos_x>SIZE_TILE_X) {
-            *pos_x = (*col==nb_col-1)?
-                *pos_x - vx*SPEED_X:
-                *pos_x-SIZE_TILE_X;
-            *col = (*col==nb_col-1)?
-                *col:
-                *col+1;
-        }
-    }
-    if (vy) {
-        *pos_y += vy*SPEED_Y;
-        if (*pos_y<0) {
-            *pos_y = (*row)?
-                *pos_y + SIZE_TILE_Y:
-                *pos_y - vy*SPEED_Y;
-            *row = (*row)?
-                (*row-1):
-                0;
-        }
-        if (*pos_y>SIZE_TILE_Y) {
-            *pos_y = (*row==nb_row-1)?
-                *pos_y-vy*SPEED_Y:
-                *pos_y-SIZE_TILE_Y;
-            *row = (*row==nb_row-1)?
-                *row:
-                *row+1;
+        if (nx>SIZE_TILE_X){
+            if (ncol+1 < nb_col && mat[nrow][ncol+1]!=0){
+                nx = nx - SIZE_TILE_X+2;
+                ncol ++;
+            } else {
+                nx = SIZE_TILE_X;
+            }
         }
     }
+    mv_next1:
+    *pos_x = nx;
+    *col = ncol;
+    if (vy){
+        ny += (vx)?vy*SPEED_Y*2/3:vy*SPEED_Y;
+        if (ny<0){
+            if (nrow-1>=0 && mat[nrow-1][ncol]!=0){
+                ny += SIZE_TILE_Y;
+                nrow --;
+            } else {
+                ny = 0; //change to fit player
+            }
+            goto mv_next2;
+        }
+        if (ny>SIZE_TILE_Y){
+            if (nrow+1 < nb_row && mat[nrow+1][ncol]!=0){
+                ny -= SIZE_TILE_Y;
+                nrow ++;
+            } else {
+                ny = SIZE_TILE_Y;
+            }
+        }
+    }
+    mv_next2:
+    *pos_y = ny;
+    *row = nrow;
 }
 
+/*
+int test_use(unsigned**matrice, int p_col, int p_row, int dx, int dy) {
 
-int test_use(int**matrice, int p_col, int p_row, int dx, int dy) {
     return 0;
-}
+}*/
