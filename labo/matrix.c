@@ -361,8 +361,6 @@ typedef struct room_connection_squares_tab{
     unsigned size; 
 }S_RCS_TAB; 
 
-
-
 static void fill_rcs_tab(S_MATRIX * matrix, S_RCS_TAB * rcstab){
     /*
     remplis rcstab avec les rectangles de matrix , dans l'ordre de l'id le plus 
@@ -475,13 +473,15 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
             unsigned stop_i = rcs1->south_square.i + (rcs2->north_square.i - rcs1->south_square.i) ;
             unsigned stop_j = rcs2->north_square.j + (rcs1->south_square.j - rcs2->north_square.j) ;
 
-            for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
+            for(unsigned i = rcs1->south_square.i ; i < stop_i+2 ;i++ ){
                 //printf("case B i=%u, rcs1.south.j=%u\n", i , rcs1->south_square.j);
+                if(i < matrix->col){
                 if(!matrix->matrix[i][rcs1->south_square.j]){
                     matrix->matrix[i][rcs1->south_square.j] = 1 ; 
                 }
+                }
             }
-            for(unsigned j = rcs2->north_square.j ; j < stop_j+2 ; j++){
+            for(unsigned j = rcs2->north_square.j ; j < stop_j+3; j++){
                 if(j < matrix->row){
                 if(!matrix->matrix[stop_i][j]){
                     matrix->matrix[stop_i][j] = 1 ; 
@@ -495,13 +495,16 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
             unsigned stop_i = rcs2->south_square.i + (rcs1->north_square.i - rcs2->south_square.i);
             unsigned stop_j = rcs2->south_square.j + (rcs1->north_square.j - rcs2->south_square.j);
 
-            for(unsigned i = rcs2->south_square.i ; i < stop_i ; i ++){
+            for(unsigned i = rcs2->south_square.i ; i < stop_i+1 ; i ++){
                 // printf("case C i=%u, rcs2.south.i=%u\n", i , rcs2->south_square.i);
+                                if(i < matrix->col){
+
                 if(!matrix->matrix[i][stop_j]){
                     matrix->matrix[i][stop_j] = 1 ; 
                 }
+                                }
             }
-            for(unsigned j = rcs2->south_square.j ; j < stop_j +2 ; j++){
+            for(unsigned j = rcs2->south_square.j ; j < stop_j +3 ; j++){
                 if(j < matrix->row){
                 if(!matrix->matrix[rcs2->south_square.i][j]){
                     matrix->matrix[rcs2->south_square.i][j] = 1 ; 
@@ -512,9 +515,12 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
             unsigned stop_i = rcs2->south_square.i + (rcs1->north_square.i - rcs2->south_square.i);
             unsigned stop_j = rcs1->north_square.j + (rcs2->south_square.j - rcs1->north_square.j);
 
-            for(unsigned i = rcs2->south_square.i ; i < stop_i ; i ++){
+            for(unsigned i = rcs2->south_square.i ; i < stop_i+2 ; i ++){
+                if(i < matrix->col){
+
                 if(!matrix->matrix[i][rcs1->north_square.j]){
                     matrix->matrix[i][rcs1->north_square.j] = 1 ; 
+                }
                 }
             }
             for(unsigned j = rcs1->north_square.j ; j < stop_j +2 ; j++){
@@ -543,15 +549,17 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
 
             unsigned stop_i = min_i + (max_i - min_i); 
 
-            for(unsigned i = min_i; i < stop_i ; i++){
+            for(unsigned i = min_i; i < stop_i +2; i++){
+                if(i < matrix->col){
                 if(!matrix->matrix[i][stop_j]){
                     matrix->matrix[i][stop_j] = 1 ; 
+                }
                 }
             } 
         }else{ //cas D 
             unsigned stop_j = rcs1->west_square.j + (rcs2->east_square.j - rcs1->west_square.j) ;
 
-            for(unsigned j = rcs1->west_square.j ; j < stop_j +2; j++){
+            for(unsigned j = rcs1->west_square.j ; j < stop_j +3; j++){
                 
                 if(j < matrix->row){
                     if(!matrix->matrix[rcs1->west_square.i][j]){
@@ -565,10 +573,12 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
 
             unsigned stop_i = min_i + (max_i - min_i); 
 
-            for(unsigned i = min_i; i < stop_i ; i++){
-                
+            for(unsigned i = min_i; i < stop_i +2; i++){
+                if(i < matrix->col){
+
                 if(!matrix->matrix[i][stop_j]){
                     matrix->matrix[i][stop_j] = 1 ; 
+                }
                 }
             } 
         }
