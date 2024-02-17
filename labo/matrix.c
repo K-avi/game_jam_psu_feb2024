@@ -157,10 +157,8 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
         obj->i = (rand()%room_widht) + i ; 
         obj->j = (rand()%room_length) + j ; 
 
-        while(obj->i == start_square.i && obj->j == start_square.j){
-            obj->i = (rand()%room_widht) + i ; 
-            obj->j = (rand()%room_length) + j ; 
-        }
+        start_square.i = obj->i; 
+        start_square.j = obj->j;
 
         obj->shift_x = 0;
         obj->shift_y = 0;
@@ -229,8 +227,8 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         place_object( &global_object_list, i,j, room_width, room_length, id_room);
                         if(id_room==2){
-                            start_square.i = i ; 
-                            start_square.j = j ; 
+                          //  start_square.i = i ; 
+                          //  start_square.j = j ; 
                         }
                         goto end_loop;
                     }
@@ -244,8 +242,8 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         place_object( &global_object_list, i,j, room_width, room_length, id_room);
                         if(id_room==3){
-                            start_square.i = i+1 ; 
-                            start_square.j = j+1 ; 
+                          //  start_square.i = i+1 ; 
+                          //  start_square.j = j+1 ; 
                         }
                         goto end_loop; 
                     }
