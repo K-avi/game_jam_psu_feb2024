@@ -12,6 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include "point_and_click.h"
+#include "../timer/timer.h"
 
 #ifndef WINDOW_SIZE
 #define WINDOW_SIZE
@@ -238,7 +239,7 @@ void render_list(SDL_Renderer* renderer, TTF_Font* font, Recipe* recipe, int rec
 }
 
 void render_pot(SDL_Renderer* renderer, Pot* pot) {
-    SDL_RenderCopy(renderer, pot->texture, NULL, &(SDL_Rect){pot->x, pot->y, 100, 100});
+    SDL_RenderCopy(renderer, pot->texture, NULL, &(SDL_Rect){pot->x, pot->y, 200, 200});
 }
 
 Recipe* generate_recipe(int place_totale, int min_to_win, int* recipe_size) {
@@ -405,8 +406,8 @@ Scene* load_scene(SDL_Renderer* renderer) {
 
     Pot* pot = malloc(sizeof(Pot));
     pot->texture = IMG_LoadTexture(renderer, "point_and_click/assets/pot.png");
-    pot->x = 500;
-    pot->y = 500;
+    pot->x = 450;
+    pot->y = 400;
     scene->pot = pot;
 
     return scene;
@@ -479,8 +480,8 @@ int point_and_click(SDL_Renderer* renderer, SDL_Window* window, TTF_Font* font, 
                                 //printf("%d %d\n", event.button.x, event.button.y);
                                 //printf("%d %d\n", scene->pot->x, scene->pot->y);
                                 // check if the bottle is in the pot
-                                if (event.button.x >= scene->pot->x && event.button.x <= scene->pot->x + 100 &&
-                                    event.button.y >= scene->pot->y && event.button.y <= scene->pot->y + 100) {
+                                if (event.button.x >= scene->pot->x && event.button.x <= scene->pot->x + 200 &&
+                                    event.button.y >= scene->pot->y && event.button.y <= scene->pot->y + 200) {
                                     //printf("in the pot\n");
                                     //printf("%s\n", click_info->bottle_grabbed->type);
                                     for (int i = 0; i < scene->recipe_size; i++) {
@@ -493,7 +494,7 @@ int point_and_click(SDL_Renderer* renderer, SDL_Window* window, TTF_Font* font, 
                                             click_info->bottle_grabbed->dest.x = -1000;
                                             click_info->bottle_grabbed->dest.y = -1000;
                                             if (scores[i].nb_bottles > scene->recipe[i].nb_bottles) {
-                                                printf("You lose !\n");
+                                                //printf("You lose !\n");
                                                 running = 0;
                                                 fin = YOU_LOSE;
                                             }
@@ -508,7 +509,7 @@ int point_and_click(SDL_Renderer* renderer, SDL_Window* window, TTF_Font* font, 
                                             }
                                         }
                                         if (win) {
-                                            printf("You win !\n");
+                                            //printf("You win !\n");
                                             running = 0;
                                             fin = YOU_WIN;
                                         }
@@ -543,8 +544,7 @@ int point_and_click(SDL_Renderer* renderer, SDL_Window* window, TTF_Font* font, 
     }
 
     if (is_timer_finished(timer)) {
-        printf("BANANA ENDING\n");
-        fin = BANANA_ENDING;
+        banana_end(window, renderer, font);
     }
 
     SDL_DestroyTexture(bg_texture);
@@ -555,7 +555,11 @@ int point_and_click(SDL_Renderer* renderer, SDL_Window* window, TTF_Font* font, 
     free(scene->bottles);
     free(scene);
 
-    return fin;
+    if (fin == YOU_WIN) {
+        good_end(window, renderer, font);
+    } else if (fin == YOU_LOSE) {
+        boom_end(window, renderer, font);
+    }
 
 }
 

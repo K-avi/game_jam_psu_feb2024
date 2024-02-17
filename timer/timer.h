@@ -38,4 +38,8 @@ extern void render_line(Timer* timer, SDL_Renderer* renderer);
 
 extern void render_timer(Timer* timer, SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
 
+extern void banana_end(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
+extern void good_end(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
+extern void boom_end(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
+
 #endif

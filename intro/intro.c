@@ -208,6 +208,8 @@ void intro(SDL_Renderer* renderer, SDL_Window* window, TTF_Font* font) {
         {"...", "panic"},
         {"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "panic"},
         {"VITE JE DOIS TROUVER LA RECETTE POUR L'ANTIDOTE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "panic"},
+        {"Recupere les recettes avec Espace sur les tables", "panic"},
+        {"Et reviens sur les plan de travail et appuye sur espace", "panic"},
     };
     int dialog_count = sizeof(dialog) / sizeof(Dialog);
 
@@ -224,8 +226,9 @@ void intro_point_and_click(SDL_Renderer* renderer, SDL_Window* window, TTF_Font*
     pencil_sfx[3] = Mix_LoadMUS("intro/assets/pencil_sfx4.mp3");
     
     Dialog dialog[] = {
-        {"CHOSIS LES BONNES POTIONS", "panic"},
-        {"SINON TU MEURTS", "panic"},
+        {"Lit la liste pour la recette", "panic"},
+        {"Recupere les ingredients", "panic"},
+        {"Et mets les dans le pot", "panic"},
     };
 
     display_dialogue(renderer, font, dialog, 2, pencil_sfx, 4, timer);

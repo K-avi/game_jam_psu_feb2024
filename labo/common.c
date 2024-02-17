@@ -80,6 +80,10 @@ void laboratoire_loop(SDL_Window*window,SDL_Renderer*renderer, TTF_Font*font,Tim
     int recip = 0;
     int res=0;
     while(ev){
+
+        if (is_timer_finished(timer)){
+            banana_end(window, renderer, font);
+        }
         //clear
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);

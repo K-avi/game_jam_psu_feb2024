@@ -88,11 +88,11 @@ int main() {
 	intro_point_and_click(renderer, window, font, timer);
     int ending = point_and_click(renderer, window, list_font, timer);
 	if (ending == 1) {
-		printf("You win\n");
+		//printf("You win\n");
 	} else if (ending == 0) {
-		printf("You lose\n");
+		//printf("You lose\n");
 	} else if (ending == 2) {
-		printf("Banana\n");
+		//printf("Banana\n");
 	}
 
 	// Free memory

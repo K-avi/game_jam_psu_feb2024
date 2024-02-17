@@ -40,10 +40,10 @@ int main() {
 		exit(1);
 	}
 
-	if (IMG_Init(IMG_INIT_PNG) < 0) {
+	/*if (IMG_Init(IMG_INIT_PNG) < 0) {
 		fprintf(stderr, "Error SDL2 Initialization : %s", SDL_GetError());
 		exit(1);
-	}
+	}*/
 
 	// On crée la fenêtre de résumé
 	SDL_Window* window =
@@ -83,7 +83,7 @@ int main() {
     srand(time(NULL));
 
     intro(renderer, window, font);
-	Timer* timer = create_timer(300, "timer/assets/background.png", "asset/compteur.png", renderer, font);
+	Timer* timer = create_timer(3, "timer/assets/background.png", "asset/compteur.png", renderer, font);
 
 	// Run timer in a separate thread with the callback
 	SDL_AddTimer(1000, timer_callback, timer);
@@ -93,7 +93,7 @@ int main() {
 	SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
-	window = SDL_CreateWindow("test labo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_SIZE_X, WINDOW_SIZE_Y,  SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
+	window = SDL_CreateWindow("test labo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_SIZE_X, WINDOW_SIZE_Y,  SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	int nb_col = 15;
@@ -125,11 +125,11 @@ int main() {
 	intro_point_and_click(renderer, window, font, timer);
     int ending = point_and_click(renderer, window, list_font, timer);
 	if (ending == 1) {
-		printf("You win\n");
+		//printf("You win\n");
 	} else if (ending == 0) {
-		printf("You lose\n");
+		//printf("You lose\n");
 	} else if (ending == 2) {
-		printf("Banana\n");
+		//printf("Banana\n");
 	}
 
 	// Free memory
