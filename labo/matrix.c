@@ -255,6 +255,9 @@ static void fill_rcs_tab(S_MATRIX * matrix, S_RCS_TAB * rcstab){
 static S_RCS_TAB * create_rcs_tab(S_MATRIX * matrix){
     /*
     matrix -> initialise, pas de sales geja generees (sinon probleme)
+
+    cree un tableau contenant des informations (valeur d'identifiant, position du 
+    coin superieur gauche,..) sur chaque rectangle de la matrice 
     */
     S_RCS_TAB * rcstab = malloc(sizeof(S_RCS_TAB));
     unsigned max = 0 ; //trouver max - 1 permet de determiner le nb de rectangles
@@ -282,46 +285,6 @@ static S_RCS_TAB * create_rcs_tab(S_MATRIX * matrix){
     }
 
 }//giga casse gueule vraiment ne pas reutiliser svp 
-
-/*
-static void connect_rooms_dumb(S_MATRIX * matrix){
-    //
-    cree une connexion entre tous les rectangles de la matrice. 
-
-    Je vais commettre des crimes contre l'algorithmie et j'ai aucun regrets
-    //
-
-    S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
-    
-    for(unsigned i = 0 ; i < rcs_tab->size ; i++){
-        unsigned identifier = rcs_tab->rcs_tab[i].identifier;
-
-        bool found_link = false ; 
-        do{
-            break;
-            //must check here that I'm not on the top / bottom
-            //and not at the end / start of the line 
-        }while(!found_link);
-    }
-
-    free(rcs_tab->rcs_tab);
-    free(rcs_tab);
-    return;
-}//PAS ENCORE FAIT 
-
-static void connect_rooms_shortest(S_MATRIX * matrix){
-    //
-    strategie de connexion : un lien part de 
-    chaque rectangle pour se connecter a un autre. 
-
-    Cree 2*nombre de salles connexions 
-    //
-    S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
-
-
-    return ; 
-}
-*/
 
 static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs2){
     /*
@@ -380,9 +343,8 @@ static void ufind_union(S_UNION_FIND * union_find , unsigned elem1, unsigned ele
 static void connect_rooms_union_find(S_MATRIX * matrix){
     /*
     strategie de connexion : tant qu'il y a plusieurs 
-    ensembles disjoints de figures -> fait l'union de 2 ensembles 
+    ensembles disjoints de rectangles -> fait l'union (trace un chemin) entre 2 rectangles
     */
-
     S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
 
     S_UNION_FIND uf ; 
@@ -390,21 +352,38 @@ static void connect_rooms_union_find(S_MATRIX * matrix){
     uf.size = rcs_tab->size ; 
 
     for(unsigned i = 0 ; i < uf.size ; i++) uf.elements[i] = i ; //initialise chaque element
-
+    //comme son propre ensemble
 
     unsigned nb_sets = uf.size ; 
     while(nb_sets != 1 ){
-        //trouver deux elements disjoints 
-        //faire l'union 
-        //tracer un chemin entre les 
-        //rectangles d'index trouves
+
+        unsigned dsjs_index = 0 ; 
+        unsigned * disjoints_sets = calloc(nb_sets, sizeof(unsigned));
+        //trouve la liste des elements disjoints
+        for(unsigned i = 0 ; i < uf.size ; i++){
+            if(uf.elements[i] == i){
+                printf("dsjs_index=%u, nb_sets=%u, i=%u\n", dsjs_index, nb_sets, i);
+                disjoints_sets[dsjs_index++] = i ; 
+            }
+        }
+        //fait l'union de deux elements disjoints aleatoires 
+        unsigned set1 = disjoints_sets[rand()%dsjs_index]; 
+        unsigned set2 = disjoints_sets[rand()%dsjs_index]; 
+
+        while(set1 == set2){
+            set2 = disjoints_sets[rand()%dsjs_index];
+        }
+        //ufind_union(&uf, set1, set2);
+        //trace un chemin entre les rectangles d'index choisis
+        draw_path_rooms(matrix, &(rcs_tab->rcs_tab[set1]),  &(rcs_tab->rcs_tab[set2]) );
+
+        free(disjoints_sets);
         nb_sets--; 
     }
 
     free(uf.elements);
     free(rcs_tab->rcs_tab); 
     free(rcs_tab);
-    //dans son ensemble disjoint 
 }
 
 S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
