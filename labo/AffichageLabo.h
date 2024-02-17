@@ -18,6 +18,7 @@ void print_shadow();
 int event_loop(int*vx,int*vy,int*dx,int*dy);
 void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat);
 int test_use(int p_col, int p_row, int*recip,int nb_recip,Timer*timer);
+void test();
 #endif
 
 /*

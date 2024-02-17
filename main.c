@@ -40,7 +40,7 @@ int main() {
 		exit(1);
 	}
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
+	if (IMG_Init(IMG_INIT_PNG) < 0) {
 		fprintf(stderr, "Error SDL2 Initialization : %s", SDL_GetError());
 		exit(1);
 	}

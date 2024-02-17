@@ -71,7 +71,7 @@ void init_laboratoire(SDL_Renderer*rend, unsigned cols, unsigned rows, unsigned 
 }
 void end_Laboratoire(){
     free_matrix(matrice);
-    //free_objects();
+    free_objects();
 }
 
 void laboratoire_loop(SDL_Window*window,SDL_Renderer*renderer, TTF_Font*font,Timer*timer, unsigned salles){
@@ -88,7 +88,6 @@ void laboratoire_loop(SDL_Window*window,SDL_Renderer*renderer, TTF_Font*font,Tim
         print_objet(pos_x, pos_y, pos_col, pos_row);
         print_player(dx,dy);
         render_timer(timer,window, renderer, font);
-
         //render
         SDL_RenderPresent(renderer);
 

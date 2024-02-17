@@ -65,32 +65,32 @@ void free_shadow() {
 void create_objects(){
     l_obj = (obj*)malloc(sizeof(obj)*6);
     SDL_Surface*surf;
-    surf = IMG_Load("../asset/coin_expe.png");
+    surf = IMG_Load("./asset/coin_expe.png");
     l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[0].w = 390;
     l_obj[0].h = 250;
     SDL_FreeSurface(surf);
-    surf = IMG_Load("../asset/bureau_debut.png");
+    surf = IMG_Load("./asset/bureau_debut.png");
     l_obj[1].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[1].w = 200;
     l_obj[1].h = 150;
     SDL_FreeSurface(surf);
-    surf = IMG_Load("../asset/bureau_recette.png");
+    surf = IMG_Load("./asset/bureau_recette.png");
     l_obj[2].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[2].w = 100;
     l_obj[2].h = 200;
     SDL_FreeSurface(surf);
-    surf = IMG_Load("../asset/eau_remplie.png");
+    surf = IMG_Load("./asset/eau_remplie.png");
     l_obj[3].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[3].w = 100;
     l_obj[3].h = 100;
     SDL_FreeSurface(surf);
-    surf = IMG_Load("../asset/eau_vide.png");
+    surf = IMG_Load("./asset/eau_vide.png");
     l_obj[4].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[4].w = 100;
     l_obj[4].h = 100;
     SDL_FreeSurface(surf);
-    surf = IMG_Load("../asset/bureau_recette_vide.png");
+    surf = IMG_Load("./asset/bureau_recette_vide.png");
     l_obj[5].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[5].w = 100;
     l_obj[5].h = 200;
@@ -167,8 +167,8 @@ void print_objet(int pos_x, int pos_y, int col, int row){
         int x = (obj.j + TILE_X/2 - col)*SIZE_TILE_X + obj.shift_x - pos_x; 
         int y = (obj.i + TILE_Y/2 - row)*SIZE_TILE_Y + obj.shift_y - pos_y;
         SDL_Rect r = {x, y, l_obj[obj.id].w, l_obj[obj.id].h};
+        SDL_RenderFillRect(renderer, &r);
         SDL_RenderCopy(renderer, l_obj[obj.id].texture,NULL, &r);
-        fprintf(stdout, "%d\n",obj.id);
     }
 }
 
