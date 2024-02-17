@@ -12,6 +12,16 @@
 #define ROOM_LENGTH_MIN 3 
 #define ROOM_LENGTH_MAX 5
 
+/*
+structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
+relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
+etre utilisee hors des fonctions internes
+*/
+typedef struct mat_square{
+    unsigned i ; 
+    unsigned j ;
+} MAT_SQUARE;
+
 S_MATRIX * create_matrix(unsigned row, unsigned col){
     /*
     cree une matrice de taille row*col dont 
@@ -176,7 +186,7 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
     free(candidates_arr.arr);
 }//assumes that the room can be fitted 
 
-static void generate_room_small(S_MATRIX * matrix, unsigned id_room){
+static void generate_room_small(S_MATRIX * matrix, unsigned id_room, MAT_SQUARE * petites_salles_ref){
 
     //room size guess
   
@@ -204,6 +214,8 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room){
                     if(courant == choisis){
                         printf("appel a fill_from i=%u\n",id_room);
                         appele = true ; 
+                        petites_salles_ref->i = i ; 
+                        petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         goto end_loop;
                     }
@@ -214,6 +226,8 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room){
             for(unsigned i = 0 ; i < matrix->row; i++){
                 for(unsigned j = 0 ; j < matrix->col; j++){
                     if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
+                        petites_salles_ref->i = i ; 
+                        petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         goto end_loop; 
                     }
@@ -227,7 +241,7 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room){
     free(candidates_arr.arr);
 }//assumes that the room can be fitted 
 
-static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles, unsigned nb_smalls ){
+static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles, unsigned nb_smalls, MAT_SQUARE * petites_salles_arr ){
     /*
     essaie de generer nb_salles dans la matrice matrix de tailles comprises entre 
 
@@ -243,21 +257,13 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles, unsigned nb_s
 
     unsigned nb_gen_small = 0 ;
     while (nb_gen_small < nb_smalls) {
-        generate_room_small(matrix, nb_gen+2);
+        generate_room_small(matrix, nb_gen+2+nb_gen_small, petites_salles_arr+nb_gen_small);
         nb_gen_small++; 
     }
 }//teste : fonctionne; comportement potentiellement a revoir
 
 
-/*
-structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
-relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
-etre utilisee hors des fonctions internes
-*/
-typedef struct mat_square{
-    unsigned i ; 
-    unsigned j ;
-} MAT_SQUARE;
+
 typedef struct room_connection_squares{
     unsigned identifier ; //le coin en haut a gauche d'une 
     //salle sert d'identifiant
@@ -495,6 +501,65 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
 }//fonction statique, pas utiliser 
 //  oiqùjvspoimjvmodsjfm<kedovùpswkv
 
+
+static void draw_path_rooms_v2(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs2){
+
+    MAT_SQUARE start_1 = rcs1->start_square ; 
+    MAT_SQUARE start_2 = rcs2->start_square ; 
+
+    if(start_1.i <= start_2.i && start_1.j <= start_2.j){
+        for (unsigned i = start_1.i; i < start_2.i; i++) {
+            if(!matrix->matrix[i][start_1.j]){
+                matrix->matrix[i][start_1.j] = 1 ;
+            }
+        }
+        for (unsigned j = start_1.j; j < start_2.j ; j++) {
+            if(!matrix->matrix[start_2.i][j]){
+                matrix->matrix[start_2.i][j] = 1; 
+            }
+        }
+    }else if(start_1.i <= start_2.i && start_1.j > start_2.j){
+        for (unsigned i = start_1.i; i < start_2.i; i++) {
+            if(!matrix->matrix[i][start_1.j]){
+                matrix->matrix[i][start_1.j] = 1 ;
+            }
+        }
+        for(unsigned j = start_2.j ; j < start_1.j ; j++){
+            if(!matrix->matrix[start_2.i][j]){
+                matrix->matrix[start_2.i][j] = 1; 
+            }
+        }
+
+    }else if(start_1.i > start_2.i && start_1.j <= start_2.j){
+
+        for(unsigned i = start_2.i ; i < start_1.i ; i++){
+            if(!matrix->matrix[i][start_1.j]){
+                matrix->matrix[i][start_1.j] = 1 ;
+            }
+        }
+        for (unsigned j = start_1.j; j < start_2.j ; j++) {
+            if(!matrix->matrix[start_2.i][j]){
+                matrix->matrix[start_2.i][j] = 1; 
+            }
+        }
+
+
+    }else{ //if(start_1.i > start_2.i && start_1.j > start_2.j)
+        for(unsigned i = start_2.i ; i < start_1.i ; i++){
+            if(!matrix->matrix[i][start_2.j]){
+                matrix->matrix[i][start_2.j] = 1 ;
+            }
+        }
+        for(unsigned j = start_2.j ; j < start_1.j ; j++){
+            if(!matrix->matrix[start_2.i][j]){
+                matrix->matrix[start_2.i][j] = 1; 
+            }
+        }
+        
+    }
+}
+
+
 //structure locale (tableau d'u32) pour union-find
 typedef struct s_union_find{
     unsigned * elements ; 
@@ -563,6 +628,7 @@ static void connect_rooms_union_find(S_MATRIX * matrix){
         }
         ufind_union(&uf, set1, set2);
         //trace un chemin entre les rectangles d'index choisis
+        draw_path_rooms_v2(matrix, &(rcs_tab->rcs_tab[set1]),  &(rcs_tab->rcs_tab[set2]) );
         draw_path_rooms(matrix, &(rcs_tab->rcs_tab[set1]),  &(rcs_tab->rcs_tab[set2]) );
 
         free(disjoints_sets);
@@ -578,9 +644,23 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsig
 
     S_MATRIX * ret = create_matrix(row, col);
 
-    generate_rooms(ret, nb_salles, nb_petites_salles);
+
+    MAT_SQUARE * petites_salles_arr = calloc(nb_petites_salles, sizeof(MAT_SQUARE)); 
+    generate_rooms(ret, nb_salles, nb_petites_salles,petites_salles_arr);
     connect_rooms_union_find(ret); 
 
+
+    unsigned id_petite_salles = nb_salles + 2 ; 
+    for(unsigned salle = 0 ; salle < nb_petites_salles ; salle ++){
+        for(unsigned i = petites_salles_arr[salle].i; i < petites_salles_arr[salle].i + ROOM_WIDTH_MIN;i++){
+            for(unsigned j = petites_salles_arr[salle].j ; j < petites_salles_arr[salle].j + ROOM_LENGTH_MIN ; j++){
+
+                ret->matrix[i][j] = id_petite_salles;
+            }
+        }
+    }
+
+    free(petites_salles_arr);
     return ret ; 
 
 }//PAS ENCORE FAIT 
