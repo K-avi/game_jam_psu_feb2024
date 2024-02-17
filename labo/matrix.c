@@ -171,8 +171,14 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
         generate_room(matrix, nb_gen+2);
         nb_gen++; // :)
     }
-}//PAS TESTE 
+}//teste : fonctionne; comportement potentiellement a revoir
 
+
+/*
+structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
+relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
+etre utilisee hors des fonctions internes
+*/
 typedef struct room_connection_squares{
     unsigned identifier ; //le coin en haut a gauche d'une 
     //salle sert d'identifiant
@@ -182,13 +188,115 @@ typedef struct room_connection_squares{
     unsigned connection_west ; 
 }S_ROOM_CS; 
 /*
-structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
-relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
-etre utilisee hors des fonctions internes
+tableau des cases de connections des 
+rectangles d'une matrice. Ne pas utiliser hors des 
+fonctions qui s'en servent deja
 */
+typedef struct room_connection_squares_tab{
+    S_ROOM_CS * rcs_tab; 
+    unsigned size; 
+}S_RCS_TAB; 
 
-static void connect_rooms(S_MATRIX * matrix){
 
+
+static void fill_rcs_tab(S_MATRIX * matrix, S_RCS_TAB * rcstab){
+    /*
+    remplis rcstab avec les rectangles de matrix , dans l'ordre de l'id le plus 
+    petit au plus grand
+    */
+
+    for(unsigned i = 0 ; i < matrix->row ; i++){
+        for(unsigned j = 0 ; j < matrix->col ; j++){
+            if(matrix->matrix[i][j] > 1){
+                
+                unsigned identifier = matrix->matrix[i][j] - 2 ; 
+                //printf("wtf\n");
+                if(rcstab->rcs_tab[identifier].identifier == 0 ){
+                    rcstab->rcs_tab[identifier].identifier = (i * matrix->col) + j;
+
+                    unsigned length = 0 ; 
+                    unsigned width = 0 ; 
+
+                    unsigned tmp_j = j ; 
+                    //printf("i=%u, tmp_j=%u",i,tmp_j);
+                    while(matrix->matrix[i][tmp_j] == identifier){
+                       
+                        tmp_j++; 
+                        length++;
+                    }
+                    unsigned tmp_i = i ;
+                    while (matrix->matrix[tmp_i][j] == identifier ) {
+                        tmp_i ++; 
+                        width ++ ;
+                    }
+                    //sets it's connection using north west south east instead of up down left right is 
+                    //ambitious tbh
+                    rcstab->rcs_tab[identifier].connection_north = (i * matrix->col) + j + length/2;
+                    rcstab->rcs_tab[identifier].connection_west = ( (i+width/2) * matrix->col) + j;
+
+                    rcstab->rcs_tab[identifier].connection_south = ( (i+width) * matrix->col) + j + length/2;
+                    rcstab->rcs_tab[identifier].connection_east = ( (i+width/2) * matrix->col) + j + length;
+                }
+            }
+        }
+    }
+
+}//encore une fois ne pas utiliser hors de son appel etc
+//pas teste
+
+static S_RCS_TAB * create_rcs_tab(S_MATRIX * matrix){
+    /*
+    matrix -> initialise, pas de sales geja generees (sinon probleme)
+    */
+    S_RCS_TAB * rcstab = malloc(sizeof(S_RCS_TAB));
+    unsigned max = 0 ; //trouver max - 1 permet de determiner le nb de rectangles
+    for(unsigned i = 0 ; i < matrix->row; i++){
+        for(unsigned j = 0 ; j < matrix->col ; j++){
+            if(matrix->matrix[i][j] > max ){
+                max = matrix->matrix[i][j] ;
+            }
+        }
+    }
+    if(max > 1){
+        rcstab->size = max - 1 ; 
+        rcstab->rcs_tab = calloc(max - 1, sizeof(S_ROOM_CS));
+
+        for(unsigned i = 0 ; i < rcstab->size; i++){
+            rcstab->rcs_tab[i].identifier = 0 ; 
+        }
+        fill_rcs_tab(matrix, rcstab);
+
+        return rcstab;
+    }else{
+        fprintf(stderr, "create_rcs_tab : erreur pas de polygone dans mat\n");
+        free(rcstab); 
+        return NULL;
+    }
+
+}//giga casse gueule vraiment ne pas reutiliser svp 
+
+static void connect_rooms_dumb(S_MATRIX * matrix){
+    /*
+    cree une connexion entre tous les rectangles de la matrice. 
+
+    Je vais commettre des crimes contre l'algorithmie et j'ai aucun regrets
+    */
+
+    S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
+    
+    for(unsigned i = 0 ; i < rcs_tab->size ; i++){
+        unsigned identifier = rcs_tab->rcs_tab[i].identifier;
+
+        bool found_link = false ; 
+        do{
+            break;
+            //must check here that I'm not on the top / bottom
+            //and not at the end / start of the line 
+        }while(!found_link);
+    }
+
+    free(rcs_tab->rcs_tab);
+    free(rcs_tab);
     return;
 }//PAS ENCORE FAIT 
 
@@ -197,7 +305,7 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
     S_MATRIX * ret = create_matrix(row, col);
 
     generate_rooms(ret, nb_salles);
-    connect_rooms(ret); 
+    connect_rooms_dumb(ret); 
 
     return ret ; 
 
@@ -207,6 +315,19 @@ void fprint_matrix(FILE * flux, S_MATRIX * mat){
     for(unsigned i = 0 ; i < mat->row; i++){
         for(unsigned j = 0 ; j < mat->col ; j++){
             fprintf(flux, "%u ", mat->matrix[i][j]); 
+        }
+        fprintf(flux, "\n");
+    }
+}
+
+void fprint_matrix_var(FILE * flux, S_MATRIX * mat){
+    for(unsigned i = 0 ; i < mat->row; i++){
+        for(unsigned j = 0 ; j < mat->col ; j++){
+            if(mat->matrix[i][j]){
+                fprintf(flux, "#"); 
+            }else{
+                fprintf(flux, " "); 
+            }
         }
         fprintf(flux, "\n");
     }

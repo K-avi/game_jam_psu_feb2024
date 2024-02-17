@@ -19,6 +19,9 @@ a faire :
 	-> créer un labyrinthe 
 		-> il doit avoir des grandes salles 
 		-> cadrillage pour modéliser 
+			-> generation de salle -> essayer de generer une salle 
+				+ petite en cas d'echecs de generation 
+			-> trouver un moyen de relier les salles 
 	
 - IIe moitie du mini jeu -> point and click + timer -> sinon on se transforme en banane radioactive 
 	-> ou autre chose      

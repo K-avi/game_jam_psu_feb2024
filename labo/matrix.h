@@ -26,6 +26,6 @@ void free_matrix(S_MATRIX * matrix);
 S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles ); 
 
 void fprint_matrix(FILE * flux, S_MATRIX * mat); 
-
+void fprint_matrix_var(FILE * flux, S_MATRIX * mat);
 
 #endif 
