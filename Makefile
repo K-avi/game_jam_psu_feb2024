@@ -2,7 +2,7 @@ INCLUDE = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -I/usr/include/SDL2 -lm
 FILES = main.c intro.c minijeux/*.c
 
 test_matrix : 
-	gcc test_matrix.c labo/matrix.c -Wall -Wextra -g -Og -o test_matrix
+	gcc test_matrix.c labo/matrix.c -g -Og -o test_matrix
 
 dev :
 	gcc main.c -o main -Wall -Wextra $(INCLUDE)
