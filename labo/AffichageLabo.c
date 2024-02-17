@@ -13,8 +13,8 @@
 extern const int WINDOW_SIZE_X;
 extern const int WINDOW_SIZE_Y;
 
-const int SIZE_TILE_X = 200;
-const int SIZE_TILE_Y = 200;
+const int SIZE_TILE_X = 100;
+const int SIZE_TILE_Y = 100;
 
 int TILE_X;
 int TILE_Y;
@@ -22,11 +22,11 @@ int TILE_Y;
 int PLAYER_SIZE_X;
 int PLAYER_SIZE_Y;
 
-int X_SHIFT; 
-int Y_SHIFT = 55;
+int X_SHIFT = 23;
+int Y_SHIFT = 23;
 
-const int SPEED_X = 12;
-const int SPEED_Y = 12;
+const int SPEED_X = 10;
+const int SPEED_Y = 10;
 
 extern OBJ_LIST global_object_list ;
 
@@ -52,7 +52,9 @@ void init_affichage(SDL_Renderer*rend){
     PLAYER_SIZE_X = SIZE_TILE_X/4;
     PLAYER_SIZE_Y = SIZE_TILE_Y/4;
     X_SHIFT = (SIZE_TILE_X*(TILE_X-1) - WINDOW_SIZE_X)/2 + PLAYER_SIZE_X/2;
+    X_SHIFT += 40;
     Y_SHIFT = (SIZE_TILE_Y*(TILE_Y-1) - WINDOW_SIZE_Y)/2 - PLAYER_SIZE_Y/2;
+    Y_SHIFT += 40;
 }
 
 void create_shadow() {
@@ -72,33 +74,33 @@ void create_objects(){
     SDL_Surface*surf;
     surf = IMG_Load("./asset/coin_expe.png");
     l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[0].w = 390;
-    l_obj[0].h = 250;
+    l_obj[0].w = 390 / 2;
+    l_obj[0].h = 250 / 2;
     SDL_FreeSurface(surf);
     surf = IMG_Load("./asset/bureau_debut.png");
     l_obj[1].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[1].w = 200;
-    l_obj[1].h = 150;
+    l_obj[1].w = 200 / 2;
+    l_obj[1].h = 150 / 2;
     SDL_FreeSurface(surf);
     surf = IMG_Load("./asset/bureau_recette.png");
     l_obj[2].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[2].w = 100;
-    l_obj[2].h = 200;
+    l_obj[2].w = 100 / 2;
+    l_obj[2].h = 200 / 2;
     SDL_FreeSurface(surf);
     surf = IMG_Load("./asset/eau_remplie.png");
     l_obj[3].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[3].w = 150;
-    l_obj[3].h = 150;
+    l_obj[3].w = 150 / 2;
+    l_obj[3].h = 150 / 2;
     SDL_FreeSurface(surf);
     surf = IMG_Load("./asset/eau_vide.png");
     l_obj[4].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[4].w = 150;
-    l_obj[4].h = 150;
+    l_obj[4].w = 150 / 2;
+    l_obj[4].h = 150 / 2;
     SDL_FreeSurface(surf);
     surf = IMG_Load("./asset/bureau_recette_vide.png");
     l_obj[5].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[5].w = 100;
-    l_obj[5].h = 200;
+    l_obj[5].w = 100 / 2;
+    l_obj[5].h = 200 / 2;
     SDL_FreeSurface(surf);
     surf = IMG_Load("./asset/perso_debout.png");
     player_still = SDL_CreateTextureFromSurface(renderer, surf);

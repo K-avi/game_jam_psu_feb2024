@@ -17,8 +17,8 @@
 #include "matrix.h"
 #endif
 */
-const int WINDOW_SIZE_X = 1920;
-const int WINDOW_SIZE_Y = 1080;
+const int WINDOW_SIZE_X = 1000;
+const int WINDOW_SIZE_Y = 600;
 
 S_MATRIX*matrice;
 
