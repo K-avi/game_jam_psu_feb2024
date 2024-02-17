@@ -55,15 +55,16 @@ void init_laboratoire(SDL_Renderer*rend, unsigned cols, unsigned rows, unsigned 
     nb_col = cols;
     nb_row = rows;
 
-    int pos_x = 0;
-    int pos_y = 0;
+    int pos_x = 50;
+    int pos_y = 50;
 
     vx = 0;
     vy = 0;
 
     matrice = generate_matrix(nb_row, nb_col, salles, p_salles);
 
-    find_salle(matrice, &pos_col, &pos_row);
+    pos_col = start_square.j;
+    pos_row = start_square.i;
 
     init_affichage(rend);
     create_objects();
