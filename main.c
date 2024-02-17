@@ -1,17 +1,4 @@
-<<<<<<< HEAD
-#include "labo/common.h"
-#include <stdlib.h>
-#include <time.h>
 
-int main(int argc, char ** argv){
-
-    //initializes the random number generator 
-    time_t t ; 
-    time(&t); 
-    srand(t);
-
-    return 0 ; 
-=======
 #include "intro/intro.c"
 #include "point_and_click/point_and_click.c"
 
@@ -68,5 +55,4 @@ int main() {
 
     intro(renderer, window, font);
     point_and_click(renderer, window, font);
->>>>>>> origin/main
 }
