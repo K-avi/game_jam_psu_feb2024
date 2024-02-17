@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
@@ -21,16 +22,17 @@
 
 SDL_Texture*shadow;
 
-void createShadow(SDL_Renderer*renderer){
+
+void create_shadow(SDL_Renderer*renderer){
     SDL_Surface*surf = IMG_Load("./darken.png");
     shadow = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_FreeSurface(surf);
 }
-void freeShadow(){
+void free_shadow(){
     SDL_DestroyTexture(shadow);
 }
 
-void printMat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x, int mat_y){
+void print_mat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x, int mat_y){
     int i = row - TILE_Y/2 - 1;
     int j = col - TILE_X/2 - 1;
 
@@ -78,19 +80,21 @@ void printMat(SDL_Renderer*renderer, unsigned**mat, int pos_x, int pos_y, int co
     }
 }
 
-void printPlayer(SDL_Renderer*renderer){
+void print_player(SDL_Renderer*renderer, int dx, int dy){
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     SDL_Rect r = {950,530,20,20};
     SDL_RenderFillRect(renderer, &r);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderDrawLine(renderer,960,540,960+dx*20,540+dy*20);
 }
 
-void printShadow(SDL_Renderer*renderer){
+void print_shadow(SDL_Renderer*renderer){
     SDL_Rect r = {0,0,1920,1080};
     SDL_RenderCopy(renderer,shadow, NULL,&r);
 }
 
 
-int eventLoop(int*vx,int*vy){
+int event_loop(int*vx,int*vy,int*dx,int*dy){
     SDL_Event event;
     while(SDL_PollEvent(&event)){
         switch (event.type) {
@@ -100,17 +104,27 @@ int eventLoop(int*vx,int*vy){
             switch (event.key.keysym.sym){
             case SDLK_ESCAPE :
                 return 0;
+            case SDLK_SPACE:
+                return 2;
             case SDLK_LEFT:
                 *vx = -1;
+                *dx = -1;
+                *dy = (*vy)?*dy:0;
                 break;
             case SDLK_RIGHT:
                 *vx = 1;
+                *dx = 1;
+                *dy = (*vy)?*dy:0;
                 break;
             case SDLK_UP:
                 *vy = -1;
+                *dy = -1;
+                *dx = (*vx)?*dx:0;
                 break;
             case SDLK_DOWN:
                 *vy = 1;
+                *dy = 1;
+                *dx = (*vx)?*dx:0;
                 break;
             }
             return 1;
@@ -119,16 +133,20 @@ int eventLoop(int*vx,int*vy){
             case SDLK_ESCAPE :
                 return 0;
             case SDLK_LEFT:
-                *vx = 0;
+                *vx = (*vx==-1)?0:*vx;
+                *dx = (*dy)?0:*dx;
                 break;
             case SDLK_RIGHT:
-                *vx = 0;
+                *vx = (*vx==1)?0:*vx;
+                *dx = (*dy)?0:*dx;
                 break;
             case SDLK_UP:
-                *vy = 0;
+                *vy = (*vy==-1)?0:*vy;
+                *dy = (*dx)?0:*dy;
                 break;
             case SDLK_DOWN:
-                *vy = 0;
+                *vy = (*vy==1)?0:*vy;
+                *dy = (*dx)?0:*dy;
                 break;
             }
             return 1;
@@ -139,9 +157,7 @@ int eventLoop(int*vx,int*vy){
     return -1;
 }
 
-void calcMove(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat){
-    
-    
+void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, int nb_row, unsigned**mat){
     if (vx) {
         *pos_x += vx*SPEED_X;
         if (*pos_x<0) {
@@ -180,4 +196,9 @@ void calcMove(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, i
                 *row+1;
         }
     }
+}
+
+
+int test_use(int**matrice, int p_col, int p_row, int dx, int dy) {
+    return 0;
 }
