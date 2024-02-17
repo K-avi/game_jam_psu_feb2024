@@ -11,7 +11,7 @@ void create_objects();
 void free_objects();
 void print_mat(unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x, int mat_y);
 void print_objet(int pos_x, int pos_y, int col, int row);
-void print_player(int dx, int dy);
+void print_player(int dx, int dy, int vx, int vy);
 
 void print_shadow();
 

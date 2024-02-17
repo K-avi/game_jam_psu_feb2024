@@ -39,13 +39,18 @@ typedef struct obj_t{
 }obj;
 obj*l_obj;
 
+int player_cpt = 0;
+int player_move = 0;
+double rot=0;
+SDL_Texture*player_still;
+SDL_Texture*player_walk;
 
 void init_affichage(SDL_Renderer*rend){
     renderer = rend;
     TILE_X = (WINDOW_SIZE_X / SIZE_TILE_X) + ((WINDOW_SIZE_X % SIZE_TILE_X)?1:0);
     TILE_Y = (WINDOW_SIZE_Y / SIZE_TILE_Y) + ((WINDOW_SIZE_Y % SIZE_TILE_Y)?1:0);
-    PLAYER_SIZE_X = SIZE_TILE_X/5;
-    PLAYER_SIZE_Y = SIZE_TILE_Y/5;
+    PLAYER_SIZE_X = SIZE_TILE_X/4;
+    PLAYER_SIZE_Y = SIZE_TILE_Y/4;
     X_SHIFT = (SIZE_TILE_X*(TILE_X-1) - WINDOW_SIZE_X)/2 + PLAYER_SIZE_X/2;
     Y_SHIFT = (SIZE_TILE_Y*(TILE_Y-1) - WINDOW_SIZE_Y)/2 - PLAYER_SIZE_Y/2;
 }
@@ -94,6 +99,12 @@ void create_objects(){
     l_obj[5].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[5].w = 100;
     l_obj[5].h = 200;
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("./asset/perso_debout.png");
+    player_still = SDL_CreateTextureFromSurface(renderer, surf);
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("./asset/perso_marche.png");
+    player_walk = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_FreeSurface(surf);
     
 }
@@ -160,12 +171,27 @@ void print_objet(int pos_x, int pos_y, int col, int row){
     }
 }
 
-void print_player(int dx, int dy){
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+void print_player(int dx, int dy, int vx, int vy){
     SDL_Rect r = {(WINDOW_SIZE_X - PLAYER_SIZE_X)/2 ,(WINDOW_SIZE_Y - PLAYER_SIZE_Y)/2,PLAYER_SIZE_X,PLAYER_SIZE_Y};
-    SDL_RenderFillRect(renderer, &r);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderDrawLine(renderer,WINDOW_SIZE_X/2,WINDOW_SIZE_Y/2,WINDOW_SIZE_X/2+dx*PLAYER_SIZE_X,WINDOW_SIZE_Y/2+dy*PLAYER_SIZE_Y);
+    //SDL_RenderCopy(renderer, (player_cpt%20>10)?player_walk:player_still, NULL, &r);
+    player_cpt++;
+    if (vx==1){
+        rot = vy?
+            (vy==1?225:135):
+            180;
+    }else{
+        if (vx==-1) {
+            rot = vy?
+                (vy==1?315:45):
+                0;
+        } else {
+            rot = vy?
+                (vy==1?270:90):
+                rot;
+        }
+    }
+    SDL_Point p = {PLAYER_SIZE_X/2,PLAYER_SIZE_Y/2};
+    SDL_RenderCopyEx(renderer, (player_move)?player_walk:player_still, NULL,&r, rot , &p, (player_cpt%30>15)?SDL_FLIP_VERTICAL:SDL_FLIP_NONE);
 }
 
 void print_shadow(){
@@ -190,21 +216,25 @@ int event_loop(int*vx,int*vy,int*dx,int*dy){
                 *vx = -1;
                 *dx = -1;
                 *dy = (*vy)?*dy:0;
+                player_move=1;
                 break;
             case SDLK_RIGHT:
                 *vx = 1;
                 *dx = 1;
                 *dy = (*vy)?*dy:0;
+                player_move=1;
                 break;
             case SDLK_UP:
                 *vy = -1;
                 *dy = -1;
                 *dx = (*vx)?*dx:0;
+                player_move=1;
                 break;
             case SDLK_DOWN:
                 *vy = 1;
                 *dy = 1;
                 *dx = (*vx)?*dx:0;
+                player_move=1;
                 break;
             }
             return 1;
@@ -215,18 +245,22 @@ int event_loop(int*vx,int*vy,int*dx,int*dy){
             case SDLK_LEFT:
                 *vx = (*vx==-1)?0:*vx;
                 *dx = (*dy)?0:*dx;
+                player_move = (*vx || *vy)?1:0;
                 break;
             case SDLK_RIGHT:
                 *vx = (*vx==1)?0:*vx;
                 *dx = (*dy)?0:*dx;
+                player_move = (*vx || *vy)?1:0;
                 break;
             case SDLK_UP:
                 *vy = (*vy==-1)?0:*vy;
                 *dy = (*dx)?0:*dy;
+                player_move = (*vx || *vy)?1:0;
                 break;
             case SDLK_DOWN:
                 *vy = (*vy==1)?0:*vy;
                 *dy = (*dx)?0:*dy;
+                player_move = (*vx || *vy)?1:0;
                 break;
             }
             return 1;

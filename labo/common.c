@@ -87,7 +87,7 @@ void laboratoire_loop(SDL_Window*window,SDL_Renderer*renderer, TTF_Font*font,Tim
         //print on screen
         print_mat(matrice->matrix, pos_x, pos_y, pos_col, pos_row, nb_col, nb_row);
         print_objet(pos_x, pos_y, pos_col, pos_row);
-        print_player(dx,dy);
+        print_player(dx,dy,vx,vy);
         render_timer(timer,window, renderer, font);
         //render
         SDL_RenderPresent(renderer);
