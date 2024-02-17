@@ -90,7 +90,7 @@ void create_objects(){
     l_obj[4].w = 100;
     l_obj[4].h = 100;
     SDL_FreeSurface(surf);
-    surf = IMG_Load("../asset/bureau_recette.png");
+    surf = IMG_Load("../asset/bureau_recette_vide.png");
     l_obj[5].texture = SDL_CreateTextureFromSurface(renderer,surf);
     l_obj[5].w = 100;
     l_obj[5].h = 200;
