@@ -142,19 +142,39 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
         //permet de trouver la case de depart de coloriage 
         //parmis les cases du tableau de candidat; ce code est 
         //vraiment sale jpp
+
+        bool appele = 0 ; 
+
         for(unsigned i = 0 ; i < matrix->row; i++){
             for(unsigned j = 0 ; j < matrix->col; j++){
                 if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
                     courant ++ ; 
                     if(courant == choisis){
-                        fill_from(matrix, i, j, id_room, room_width, room_length);                    }
+                        printf("appel a fill_from i=%u\n",id_room);
+                        appele = true ; 
+                        fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        goto end_loop;
+                    }
                 }
             }
         }
+
+        if(!appele){
+            for(unsigned i = 0 ; i < matrix->row; i++){
+                for(unsigned j = 0 ; j < matrix->col; j++){
+                    if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
+                        fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        goto end_loop; 
+                    }
+                }
+            }
+        }
+
+        end_loop: ;
+    
     }else{
         fprintf(stderr, "erreur dans generate_room : impossible de generer\n");
     }
-
     free(candidates_arr.arr);
 }//assumes that the room can be fitted 
 
@@ -306,24 +326,28 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
                     matrix->matrix[i][rcs1->south_square.j] = 1 ; 
                 }
             }
-            for(unsigned j = rcs1->south_square.j ; j < stop_j ; j++  ){
+            for(unsigned j = rcs1->south_square.j ; j < stop_j +2 ; j++  ){
+               if(j < matrix->row){
                 if(!matrix->matrix[stop_i][j]){
                     matrix->matrix[stop_i][j] = 1 ; 
                 }
+               }
             }
         }else { //if(rcs1->south_square.j > rcs2->souht_square.j) //cas B 
             unsigned stop_i = rcs1->south_square.i + (rcs2->north_square.i - rcs1->south_square.i) ;
             unsigned stop_j = rcs2->north_square.j + (rcs1->south_square.j - rcs2->north_square.j) ;
 
             for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
-                printf("case B i=%u, rcs1.south.j=%u\n", i , rcs1->south_square.j);
+                //printf("case B i=%u, rcs1.south.j=%u\n", i , rcs1->south_square.j);
                 if(!matrix->matrix[i][rcs1->south_square.j]){
                     matrix->matrix[i][rcs1->south_square.j] = 1 ; 
                 }
             }
-            for(unsigned j = rcs2->north_square.j ; j < stop_j ; j++){
+            for(unsigned j = rcs2->north_square.j ; j < stop_j+2 ; j++){
+                if(j < matrix->row){
                 if(!matrix->matrix[stop_i][j]){
                     matrix->matrix[stop_i][j] = 1 ; 
+                }
                 }
             }
 
@@ -334,14 +358,16 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
             unsigned stop_j = rcs2->south_square.j + (rcs1->north_square.j - rcs2->south_square.j);
 
             for(unsigned i = rcs2->south_square.i ; i < stop_i ; i ++){
-                 printf("case C i=%u, rcs2.south.i=%u\n", i , rcs2->south_square.i);
+                // printf("case C i=%u, rcs2.south.i=%u\n", i , rcs2->south_square.i);
                 if(!matrix->matrix[i][stop_j]){
                     matrix->matrix[i][stop_j] = 1 ; 
                 }
             }
-            for(unsigned j = rcs2->south_square.j ; j < stop_j ; j++){
+            for(unsigned j = rcs2->south_square.j ; j < stop_j +2 ; j++){
+                if(j < matrix->row){
                 if(!matrix->matrix[rcs2->south_square.i][j]){
                     matrix->matrix[rcs2->south_square.i][j] = 1 ; 
+                }
                 }
             }
         }else{ //cas F
@@ -353,9 +379,11 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
                     matrix->matrix[i][rcs1->north_square.j] = 1 ; 
                 }
             }
-            for(unsigned j = rcs1->north_square.j ; j < stop_j; j++){
+            for(unsigned j = rcs1->north_square.j ; j < stop_j +2 ; j++){
+                if(j < matrix->row){
                 if(!matrix->matrix[stop_i][j]){
                     matrix->matrix[stop_i][j] = 1 ; 
+                }
                 }
             }
         }
@@ -365,10 +393,11 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
             unsigned stop_j = rcs2->east_square.j + (rcs1->west_square.j - rcs2->east_square.j ) ;
             
             
-            for(unsigned j = rcs2->east_square.j ; j < stop_j ; j++){
-                
+            for(unsigned j = rcs2->east_square.j ; j < stop_j+2 ; j++){
+                if(j < matrix->row){
                 if(!matrix->matrix[rcs2->east_square.i][j]){
                     matrix->matrix[rcs2->east_square.i][j] = 1 ; 
+                }
                 }
             }
             unsigned min_i = rcs2->east_square.i < rcs1->west_square.i ? rcs2->east_square.i : rcs2->west_square.i; 
@@ -384,7 +413,7 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
         }else{ //cas D 
             unsigned stop_j = rcs1->west_square.j + (rcs2->east_square.j - rcs1->west_square.j) ;
 
-            for(unsigned j = rcs1->west_square.j ; j < stop_j ; j++){
+            for(unsigned j = rcs1->west_square.j ; j < stop_j +2; j++){
                 
                 if(j < matrix->row){
                     if(!matrix->matrix[rcs1->west_square.i][j]){
@@ -393,12 +422,13 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
                 }
             }
 
-            unsigned min_i = rcs2->east_square.i < rcs1->west_square.i ? rcs2->east_square.i : rcs2->west_square.i; 
+            unsigned min_i = rcs2->east_square.i < rcs1->west_square.i ? rcs2->east_square.i : rcs1->west_square.i; 
             unsigned max_i = rcs2->east_square.i < rcs1->west_square.i ? rcs1->west_square.i : rcs2->east_square.i;
 
             unsigned stop_i = min_i + (max_i - min_i); 
 
             for(unsigned i = min_i; i < stop_i ; i++){
+                
                 if(!matrix->matrix[i][stop_j]){
                     matrix->matrix[i][stop_j] = 1 ; 
                 }
