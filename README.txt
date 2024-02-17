@@ -1,3 +1,15 @@
+La Boullette (de papier)
+
+==================================
+
+Programmeur : 
+	- Guillaume REGNAULT
+	- Pierre BAUMANN
+	- Ivan MULOT-RADOJCIC
+Direction Artistique :
+	- Alex FAUCHEU
+
+==================================
 
 theme : exposition 
 
@@ -6,23 +18,33 @@ pitch :
 	- Tu as été exposé aux radiations 
 	  -> tu as un temps limité pour trouver les objets pour te soigner 
 	  -> meta minijeu pour chopper la recette de l'antidote
-		
           -> bruit geger qui s'accèlere 
 
 
-a faire : 
+==================================
 
-- intro / outro 
+Control :
 
-- I ere moitie du mini jeu -> labyrinthe + liste de potions 
-	
-	-> créer un labyrinthe 
-		-> il doit avoir des grandes salles 
-		-> cadrillage pour modéliser 
-			-> generation de salle -> essayer de generer une salle 
-				+ petite en cas d'echecs de generation 
-			-> trouver un moyen de relier les salles 
-	
-- IIe moitie du mini jeu -> point and click + timer -> sinon on se transforme en banane radioactive 
-	-> ou autre chose      
+laboratoire :
+	- flêche pous se déplacer
+	- espace pour intéragire
+plan de travail :
+	- souris - drag and drop
 
+==================================
+
+Objectif :
+- finir dans le temps impartie.
+laboratoire :
+	- traversé le laboratoire pour récuperer les morceau de recette sur les 3 bureaux.
+	- boire de l'eau pour réduire sont niveaux de radidation
+plan de travail :
+	- confectionner l'antidote correctement pour survivre.
+
+
+==================================
+
+fins :
+- Good Ending
+- BOOM Ending
+- Banana Ending
