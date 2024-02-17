@@ -8,6 +8,7 @@
 #include <SDL2/SDL_ttf.h>
 #include "AffichageLabo.h"
 #include "matrix.h"
+#include "../timer/timer.c"
 
 extern const int WINDOW_SIZE_X;
 extern const int WINDOW_SIZE_Y;
@@ -24,8 +25,8 @@ int PLAYER_SIZE_Y;
 int X_SHIFT; 
 int Y_SHIFT = 55;
 
-const int SPEED_X = 6;
-const int SPEED_Y = 6;
+const int SPEED_X = 12;
+const int SPEED_Y = 12;
 
 extern OBJ_LIST global_object_list ;
 
@@ -62,7 +63,7 @@ void free_shadow() {
 
 
 void create_objects(){
-    l_obj = (obj*)malloc(sizeof(obj)*5);
+    l_obj = (obj*)malloc(sizeof(obj)*6);
     SDL_Surface*surf;
     surf = IMG_Load("../asset/coin_expe.png");
     l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
@@ -70,29 +71,34 @@ void create_objects(){
     l_obj[0].h = 250;
     SDL_FreeSurface(surf);
     surf = IMG_Load("../asset/bureau_debut.png");
-    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[0].w = 200;
-    l_obj[0].h = 150;
+    l_obj[1].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[1].w = 200;
+    l_obj[1].h = 150;
     SDL_FreeSurface(surf);
     surf = IMG_Load("../asset/bureau_recette.png");
-    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[0].w = 100;
-    l_obj[0].h = 200;
+    l_obj[2].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[2].w = 100;
+    l_obj[2].h = 200;
     SDL_FreeSurface(surf);
     surf = IMG_Load("../asset/eau_remplie.png");
-    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[0].w = 100;
-    l_obj[0].h = 100;
+    l_obj[3].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[3].w = 100;
+    l_obj[3].h = 100;
     SDL_FreeSurface(surf);
     surf = IMG_Load("../asset/eau_vide.png");
-    l_obj[0].texture = SDL_CreateTextureFromSurface(renderer,surf);
-    l_obj[0].w = 100;
-    l_obj[0].h = 100;
+    l_obj[4].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[4].w = 100;
+    l_obj[4].h = 100;
+    SDL_FreeSurface(surf);
+    surf = IMG_Load("../asset/bureau_recette.png");
+    l_obj[5].texture = SDL_CreateTextureFromSurface(renderer,surf);
+    l_obj[5].w = 100;
+    l_obj[5].h = 200;
     SDL_FreeSurface(surf);
     
 }
 void free_objects(){
-    for(int i=0;i<5;i++){
+    for(int i=0;i<6;i++){
         SDL_DestroyTexture(l_obj[i].texture);
     }
     free(l_obj);
@@ -158,16 +164,11 @@ void print_mat(unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x,
 void print_objet(int pos_x, int pos_y, int col, int row){
     for (int m=0; m<global_object_list.nb_objects_cur;m++){
         OBJ_INFOS obj = global_object_list.list[m];
-        int test = ((col - TILE_X/2 - 1) <= obj.i) &&
-            ((col + TILE_X/2) >= obj.i) &&
-            ((row - TILE_Y/2 - 1) <= obj.j) &&
-            ((row + TILE_Y/2) >= obj.j);
-        if (test){
-            int x = (obj.i + TILE_X/2 - col)*SIZE_TILE_X + obj.shift_x - pos_x; 
-            int y = (obj.j + TILE_Y/2 - row)*SIZE_TILE_Y + obj.shift_y - pos_y;
-            SDL_Rect r = {x, y, l_obj[obj.id].w, l_obj[obj.id].h};
-            SDL_RenderCopy(renderer, l_obj[obj.id].texture,NULL, &r);
-        }
+        int x = (obj.j + TILE_X/2 - col)*SIZE_TILE_X + obj.shift_x - pos_x; 
+        int y = (obj.i + TILE_Y/2 - row)*SIZE_TILE_Y + obj.shift_y - pos_y;
+        SDL_Rect r = {x, y, l_obj[obj.id].w, l_obj[obj.id].h};
+        SDL_RenderCopy(renderer, l_obj[obj.id].texture,NULL, &r);
+        fprintf(stdout, "%d\n",obj.id);
     }
 }
 
@@ -302,8 +303,30 @@ void calc_move(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, 
     *row = nrow;
 }
 
-/*
-int test_use(unsigned**matrice, int p_col, int p_row, int dx, int dy) {
 
+int test_use(int p_col, int p_row,int*recip,int nb_recip,Timer*timer) {
+    for (int m=0; m<global_object_list.nb_objects_cur;m++){
+        OBJ_INFOS obj = global_object_list.list[m];
+        for(int a=-1;a<2;a++){
+            for(int b=-1;b<2;b++){
+                if (p_row+a==obj.i && p_col+b==obj.j){
+                    switch (obj.id){
+                        case 0:
+                            if (*recip>=nb_recip) return 1;
+                            break;
+                        case 2:
+                            *recip = *recip + 1;
+                            global_object_list.list[m].id = 5;
+                            break;
+                        case 3:
+                            global_object_list.list[m].id = 4;
+                            timer->current_time = (timer->current_time-10<0?0:timer->current_time-10);
+                            break;
+                    }
+                    return 0;
+                }
+            }
+        }
+    }
     return 0;
-}*/
+}
