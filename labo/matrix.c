@@ -154,6 +154,9 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
     }else if(id == 3){
         OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
         
+        obj->i = (rand()%room_widht) + i ; 
+        obj->j = (rand()%room_length) + j ; 
+
         while(obj->i == start_square.i && obj->j == start_square.j){
             obj->i = (rand()%room_widht) + i ; 
             obj->j = (rand()%room_length) + j ; 
