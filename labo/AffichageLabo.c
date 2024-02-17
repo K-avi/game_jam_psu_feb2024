@@ -145,31 +145,39 @@ void calcMove(int*col,int*row,int*pos_x, int*pos_y, int vx, int vy,int nb_col, i
     if (vx) {
         *pos_x += vx*SPEED_X;
         if (*pos_x<0) {
-            *pos_x = *pos_x+SIZE_TILE_X;
+            *pos_x = (*col)?
+                *pos_x + SIZE_TILE_X:
+                *pos_x - vx*SPEED_X;
             *col = (*col)?
                 (*col-1):
                 0;
         }
         if (*pos_x>SIZE_TILE_X) {
-            *pos_x = *pos_x-SIZE_TILE_X;
-            *col = (*col)?
-                (*col+1):
-                *col;
+            *pos_x = (*col==nb_col-1)?
+                *pos_x - vx*SPEED_X:
+                *pos_x-SIZE_TILE_X;
+            *col = (*col==nb_col-1)?
+                *col:
+                *col+1;
         }
     }
     if (vy) {
         *pos_y += vy*SPEED_Y;
         if (*pos_y<0) {
-            *pos_y = *pos_y+SIZE_TILE_Y;
+            *pos_y = (*row)?
+                *pos_y + SIZE_TILE_Y:
+                *pos_y - vy*SPEED_Y;
             *row = (*row)?
                 (*row-1):
                 0;
         }
         if (*pos_y>SIZE_TILE_Y) {
-            *pos_y = *pos_y-SIZE_TILE_Y;
-            *row = (*row)?
-                (*row+1):
-                *row;
+            *pos_y = (*row==nb_row-1)?
+                *pos_y-vy*SPEED_Y:
+                *pos_y-SIZE_TILE_Y;
+            *row = (*row==nb_row-1)?
+                *row:
+                *row+1;
         }
     }
 }
