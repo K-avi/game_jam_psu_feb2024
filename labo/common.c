@@ -3,7 +3,9 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_video.h>
+#include <SDL2/SDL_ttf.h>
 #include <unistd.h>
+#include "../timer/timer.c"
 
 
 #ifndef AFFICHAGE_LABO_H
@@ -62,28 +64,28 @@ void init_laboratoire(SDL_Renderer*rend, unsigned cols, unsigned rows, unsigned 
     find_salle(matrice, &pos_col, &pos_row);
 
     init_affichage(rend);
-    create_shadow();
     create_objects();
     
 }
 void end_Laboratoire(){
     free_matrix(matrice);
-    free_shadow();
-    free_objects();
+    //free_objects();
 }
 
-void laboratoire_loop(SDL_Renderer*renderer){
-    int ev=1;;
+void laboratoire_loop(SDL_Window*window,SDL_Renderer*renderer, TTF_Font*font,Timer*timer, unsigned salles){
+    int ev=1;
+    int recip = 0;
+    int res=0;
     while(ev){
         //clear
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         //print on screen
         print_mat(matrice->matrix, pos_x, pos_y, pos_col, pos_row, nb_col, nb_row);
         print_objet(pos_x, pos_y, pos_col, pos_row);
         print_player(dx,dy);
-        //print_shadow(renderer);
+        render_timer(timer,window, renderer, font);
 
         //render
         SDL_RenderPresent(renderer);
@@ -91,8 +93,9 @@ void laboratoire_loop(SDL_Renderer*renderer){
         //event
         ev = event_loop(&vx, &vy, &dx, &dy);
         calc_move(&pos_col, &pos_row, &pos_x, &pos_y, vx, vy, nb_col, nb_row, matrice->matrix);
-        //if (ev==2){
-            //test use event
-        //}
+        if (ev==2){
+            res = test_use(pos_col,pos_row, &recip, salles-2, timer);
+            if (res) break;
+        }
     }
 }

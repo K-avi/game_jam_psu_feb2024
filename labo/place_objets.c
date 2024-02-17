@@ -2,6 +2,7 @@
 #include "matrix.h"
 #include <stdlib.h>
 
+/*
 typedef struct obj_infos{
     unsigned i ; 
     unsigned j ; 
@@ -13,7 +14,7 @@ typedef struct obj_struct{
 
     OBJ_INFOS * list ; 
     unsigned nb_objects ; 
-}OBJ_LIST ; 
+}OBJ_LIST ; */
 
 static OBJ_LIST * place_objets(S_MATRIX * matrix){
     OBJ_LIST * ret = malloc(sizeof(OBJ_LIST));
