@@ -23,16 +23,16 @@
 
 
 OBJ_LIST global_object_list ; 
+unsigned ID_SMALL_ROOM ; 
 
+
+MAT_SQUARE start_square ; 
 /*
 structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
 relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
 etre utilisee hors des fonctions internes
 */
-typedef struct mat_square{
-    unsigned i ; 
-    unsigned j ;
-} MAT_SQUARE;
+
 
 S_MATRIX * create_matrix(unsigned row, unsigned col){
     /*
@@ -143,7 +143,29 @@ static void fill_from(S_MATRIX * matrix, unsigned start_i, unsigned start_j, uns
 static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned room_widht, unsigned room_length, unsigned id){
     
 
-    if(id != 2){
+    if(id == 2){
+        OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
+        obj->i = i ; 
+        obj->j = room_length + j - 1 ; 
+        obj->shift_x = 0 ; 
+        obj->shift_y = 0 ; 
+        obj->id = 0; 
+        list_obj->nb_objects_cur ++ ; 
+    }else if(id == 3){
+        OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
+        
+        while(obj->i == start_square.i && obj->j == start_square.j){
+            obj->i = (rand()%room_widht) + i ; 
+            obj->j = (rand()%room_length) + j ; 
+        }
+
+        obj->shift_x = rand()%SIZE_TILE_X ; 
+        obj->shift_y = rand()%SIZE_TILE_Y ; 
+
+        obj->id = 1 ; 
+
+        list_obj->nb_objects_cur ++ ; 
+    }else if(id == 3 ){
         OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
         obj->i = (rand()%room_widht) + i ; 
         obj->j = (rand()%room_length) + j ; 
@@ -151,16 +173,20 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
         obj->shift_x = rand()%SIZE_TILE_X ; 
         obj->shift_y = rand()%SIZE_TILE_Y ; 
 
-        obj->id = id ; 
+        obj->id = 3 ; 
 
         list_obj->nb_objects_cur ++ ; 
-    }else{
+    }else {
         OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
-        obj->i = i ; 
-        obj->j = room_length + j - 1 ; 
-        obj->shift_x = 0 ; 
-        obj->shift_y = 0 ; 
-        obj->id = id ; 
+        obj->i = (rand()%room_widht) + i ; 
+        obj->j = (rand()%room_length) + j ; 
+
+        obj->shift_x = rand()%SIZE_TILE_X ; 
+        obj->shift_y = rand()%SIZE_TILE_Y ; 
+
+        obj->id = 2 ; 
+
+        list_obj->nb_objects_cur ++ ; 
     }
 }//i'm discovering new lows when it comes to writing code
 
@@ -199,6 +225,10 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                         appele = true ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         place_object( &global_object_list, i,j, room_width, room_length, id_room);
+                        if(id_room==2){
+                            start_square.i = i ; 
+                            start_square.j = j ; 
+                        }
                         goto end_loop;
                     }
                 }
@@ -210,7 +240,10 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                     if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         place_object( &global_object_list, i,j, room_width, room_length, id_room);
-
+                        if(id_room==2){
+                            start_square.i = i ; 
+                            start_square.j = j ; 
+                        }
                         goto end_loop; 
                     }
                 }
@@ -255,7 +288,7 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room, MAT_SQUARE 
                         petites_salles_ref->i = i ; 
                         petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
-                        place_object( &global_object_list, i,j, room_width, room_length, id_room);
+                        place_object( &global_object_list, i,j, room_width, room_length, 3);
 
                         goto end_loop;
                     }
@@ -693,18 +726,14 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsig
     connect_rooms_union_find(ret); 
 
     unsigned id_petite_salles = nb_salles + 2 ; 
+    ID_SMALL_ROOM = id_petite_salles ; 
+
     for(unsigned salle = 0 ; salle < nb_petites_salles ; salle ++){
         for(unsigned i = petites_salles_arr[salle].i; i < petites_salles_arr[salle].i + ROOM_WIDTH_MIN;i++){
             for(unsigned j = petites_salles_arr[salle].j ; j < petites_salles_arr[salle].j + ROOM_LENGTH_MIN ; j++){
 
                 ret->matrix[i][j] = id_petite_salles;
             }
-        }
-    }
-
-    for(unsigned i = 0 ; i < global_object_list.nb_objects_cur ; i++){
-        if( ret->matrix[global_object_list.list[i].i][global_object_list.list[i].j] == id_petite_salles ){
-            global_object_list.list[i].id = id_petite_salles ; 
         }
     }
 

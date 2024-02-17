@@ -34,6 +34,15 @@ typedef struct obj_struct{
 extern OBJ_LIST global_object_list ;
 //I can't justify this tbh 
 
+extern unsigned ID_SMALL_ROOM ; 
+
+
+typedef struct mat_square{
+    unsigned i ; 
+    unsigned j ;
+} MAT_SQUARE;
+
+extern MAT_SQUARE start_square ; 
 
 #ifdef dev
 
