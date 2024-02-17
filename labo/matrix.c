@@ -243,7 +243,7 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                     if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
                         place_object( &global_object_list, i,j, room_width, room_length, id_room);
-                        if(id_room==2){
+                        if(id_room==3){
                             start_square.i = i ; 
                             start_square.j = j ; 
                         }
