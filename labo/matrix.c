@@ -179,13 +179,19 @@ structure "statique" du fichier, definis les cases ou les routes vont aboutir po
 relier les pieces de manieres coherentes; la structure est interne et ne devrait pas 
 etre utilisee hors des fonctions internes
 */
+typedef struct mat_square{
+    unsigned i ; 
+    unsigned j ;
+} MAT_SQUARE;
 typedef struct room_connection_squares{
     unsigned identifier ; //le coin en haut a gauche d'une 
     //salle sert d'identifiant
-    unsigned connection_north ;
-    unsigned connection_south ; 
-    unsigned connection_east ; 
-    unsigned connection_west ; 
+    MAT_SQUARE north_square ;
+    MAT_SQUARE south_square ; 
+    MAT_SQUARE east_square ; 
+    MAT_SQUARE west_square ; 
+
+    MAT_SQUARE start_square ;
 }S_ROOM_CS; 
 /*
 tableau des cases de connections des 
@@ -212,30 +218,32 @@ static void fill_rcs_tab(S_MATRIX * matrix, S_RCS_TAB * rcstab){
                 unsigned identifier = matrix->matrix[i][j] - 2 ; 
                 //printf("wtf\n");
                 if(rcstab->rcs_tab[identifier].identifier == 0 ){
-                    rcstab->rcs_tab[identifier].identifier = (i * matrix->col) + j;
+                    rcstab->rcs_tab[identifier].identifier = matrix->matrix[i][j];
 
                     unsigned length = 0 ; 
                     unsigned width = 0 ; 
 
                     unsigned tmp_j = j ; 
-                    //printf("i=%u, tmp_j=%u",i,tmp_j);
-                    while(matrix->matrix[i][tmp_j] == identifier){
+                    printf("i=%u, tmp_j=%u\n",i,tmp_j);
+                    while(matrix->matrix[i][tmp_j] == rcstab->rcs_tab[identifier].identifier){
                        
                         tmp_j++; 
                         length++;
+                        if(tmp_j == matrix->col) break;
                     }
                     unsigned tmp_i = i ;
-                    while (matrix->matrix[tmp_i][j] == identifier ) {
+                    while (matrix->matrix[tmp_i][j] == rcstab->rcs_tab[identifier].identifier ) {
                         tmp_i ++; 
                         width ++ ;
+                        if(tmp_i == matrix->row) break;
                     }
                     //sets it's connection using north west south east instead of up down left right is 
                     //ambitious tbh
-                    rcstab->rcs_tab[identifier].connection_north = (i * matrix->col) + j + length/2;
-                    rcstab->rcs_tab[identifier].connection_west = ( (i+width/2) * matrix->col) + j;
-
-                    rcstab->rcs_tab[identifier].connection_south = ( (i+width) * matrix->col) + j + length/2;
-                    rcstab->rcs_tab[identifier].connection_east = ( (i+width/2) * matrix->col) + j + length;
+                    rcstab->rcs_tab[identifier].start_square = (MAT_SQUARE){i,j};
+                    rcstab->rcs_tab[identifier].north_square = (MAT_SQUARE){i, j+ length/2};
+                    rcstab->rcs_tab[identifier].south_square = (MAT_SQUARE){i + width , j+ length/2};
+                    rcstab->rcs_tab[identifier].west_square = (MAT_SQUARE){i+width/2, j};
+                    rcstab->rcs_tab[identifier].east_square = (MAT_SQUARE){i+width/2, j  + length};
                 }
             }
         }
@@ -275,12 +283,13 @@ static S_RCS_TAB * create_rcs_tab(S_MATRIX * matrix){
 
 }//giga casse gueule vraiment ne pas reutiliser svp 
 
+/*
 static void connect_rooms_dumb(S_MATRIX * matrix){
-    /*
+    //
     cree une connexion entre tous les rectangles de la matrice. 
 
     Je vais commettre des crimes contre l'algorithmie et j'ai aucun regrets
-    */
+    //
 
     S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
     
@@ -300,12 +309,110 @@ static void connect_rooms_dumb(S_MATRIX * matrix){
     return;
 }//PAS ENCORE FAIT 
 
+static void connect_rooms_shortest(S_MATRIX * matrix){
+    //
+    strategie de connexion : un lien part de 
+    chaque rectangle pour se connecter a un autre. 
+
+    Cree 2*nombre de salles connexions 
+    //
+    S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
+
+
+    return ; 
+}
+*/
+
+static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs2){
+    /*
+    relie les rectangles rcs1 et rcs2 dans matrix avec un chemin de 1
+    */
+    
+    MAT_SQUARE start_1 = rcs1->start_square ; 
+    MAT_SQUARE start_2 = rcs2->start_square ; 
+
+    if(start_1.i < start_2.i && start_1.j < start_2.j){
+
+    }else if(start_1.i < start_2.i && start_1.j >= start_2.j){
+
+    }else if (start_1.i >= start_2.i && start_1.j >= start_2.j) {
+    
+    }else if (start_1.i >= start_2.i && start_1.j < start_2.j){
+
+    }
+
+    return ;
+}//fonction statique, pas utiliser 
+
+//structure locale (tableau d'u32) pour union-find
+typedef struct s_union_find{
+    unsigned * elements ; 
+    unsigned size ; 
+} S_UNION_FIND;
+
+static unsigned ufind_find(S_UNION_FIND * union_find, unsigned elem){
+    
+    unsigned parent = union_find->elements[elem]; 
+    unsigned tmp_elem = elem; 
+
+    while(parent != tmp_elem){
+        tmp_elem = parent ; 
+        parent = union_find->elements[tmp_elem]; 
+    }
+
+    return tmp_elem;
+}
+
+static void ufind_union(S_UNION_FIND * union_find , unsigned elem1, unsigned elem2){
+    /*
+    union basique sans compression 
+    de chemin entre elem1 et elem2
+    */
+
+    unsigned father1 = ufind_find(union_find, elem1 );
+    unsigned father2 = ufind_find(union_find, elem2) ; 
+
+    union_find->elements[father1] = father2 ; 
+
+    return ; 
+}
+
+static void connect_rooms_union_find(S_MATRIX * matrix){
+    /*
+    strategie de connexion : tant qu'il y a plusieurs 
+    ensembles disjoints de figures -> fait l'union de 2 ensembles 
+    */
+
+    S_RCS_TAB * rcs_tab = create_rcs_tab(matrix); 
+
+    S_UNION_FIND uf ; 
+    uf.elements =  calloc(rcs_tab->size, sizeof(unsigned));
+    uf.size = rcs_tab->size ; 
+
+    for(unsigned i = 0 ; i < uf.size ; i++) uf.elements[i] = i ; //initialise chaque element
+
+
+    unsigned nb_sets = uf.size ; 
+    while(nb_sets != 1 ){
+        //trouver deux elements disjoints 
+        //faire l'union 
+        //tracer un chemin entre les 
+        //rectangles d'index trouves
+        nb_sets--; 
+    }
+
+    free(uf.elements);
+    free(rcs_tab->rcs_tab); 
+    free(rcs_tab);
+    //dans son ensemble disjoint 
+}
+
 S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
 
     S_MATRIX * ret = create_matrix(row, col);
 
     generate_rooms(ret, nb_salles);
-    connect_rooms_dumb(ret); 
+    connect_rooms_union_find(ret); 
 
     return ret ; 
 
