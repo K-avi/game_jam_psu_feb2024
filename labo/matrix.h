@@ -23,7 +23,7 @@ void free_matrix(S_MATRIX * matrix);
 
 #endif
 
-S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles ); 
+S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsigned nb_petites_salles ); 
 
 void fprint_matrix(FILE * flux, S_MATRIX * mat); 
 void fprint_matrix_var(FILE * flux, S_MATRIX * mat);

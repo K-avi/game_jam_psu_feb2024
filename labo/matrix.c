@@ -158,7 +158,6 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                 }
             }
         }
-
         if(!appele){
             for(unsigned i = 0 ; i < matrix->row; i++){
                 for(unsigned j = 0 ; j < matrix->col; j++){
@@ -169,7 +168,6 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                 }
             }
         }
-
         end_loop: ;
     
     }else{
@@ -178,7 +176,58 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
     free(candidates_arr.arr);
 }//assumes that the room can be fitted 
 
-static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
+static void generate_room_small(S_MATRIX * matrix, unsigned id_room){
+
+    //room size guess
+  
+    unsigned room_width = ROOM_WIDTH_MIN ;
+    unsigned room_length = ROOM_LENGTH_MIN ;
+
+    B_ARR candidates_arr ;
+    candidates_arr.size = matrix->col * matrix->row ; 
+    candidates_arr.arr = calloc(matrix->col * matrix->row, sizeof(unsigned)) ;
+
+    unsigned nb_candidats =  find_candidates(matrix, &candidates_arr , room_width, room_length);
+    //printf("nbcandidats=%u\n", nb_candidats);
+    if(nb_candidats){//evite les divisions par zer 
+        unsigned choisis = rand()%nb_candidats ; //choisis un candidat au hasard
+        long long int courant = -1 ; 
+        //permet de trouver la case de depart de coloriage 
+        //parmis les cases du tableau de candidat; ce code est 
+        //vraiment sale jpp
+        bool appele = 0 ; 
+
+        for(unsigned i = 0 ; i < matrix->row; i++){
+            for(unsigned j = 0 ; j < matrix->col; j++){
+                if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
+                    courant ++ ; 
+                    if(courant == choisis){
+                        printf("appel a fill_from i=%u\n",id_room);
+                        appele = true ; 
+                        fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        goto end_loop;
+                    }
+                }
+            }
+        }
+        if(!appele){
+            for(unsigned i = 0 ; i < matrix->row; i++){
+                for(unsigned j = 0 ; j < matrix->col; j++){
+                    if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
+                        fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        goto end_loop; 
+                    }
+                }
+            }
+        }
+        end_loop: ;    
+    }else{
+        fprintf(stderr, "erreur dans generate_room : impossible de generer\n");
+    }
+    free(candidates_arr.arr);
+}//assumes that the room can be fitted 
+
+static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles, unsigned nb_smalls ){
     /*
     essaie de generer nb_salles dans la matrice matrix de tailles comprises entre 
 
@@ -190,6 +239,12 @@ static void generate_rooms(S_MATRIX * matrix,  unsigned nb_salles){
     while(nb_gen < nb_salles){
         generate_room(matrix, nb_gen+2);
         nb_gen++; // :)
+    }
+
+    unsigned nb_gen_small = 0 ;
+    while (nb_gen_small < nb_smalls) {
+        generate_room_small(matrix, nb_gen+2);
+        nb_gen_small++; 
     }
 }//teste : fonctionne; comportement potentiellement a revoir
 
@@ -519,11 +574,11 @@ static void connect_rooms_union_find(S_MATRIX * matrix){
     free(rcs_tab);
 }
 
-S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles){
+S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsigned nb_petites_salles){
 
     S_MATRIX * ret = create_matrix(row, col);
 
-    generate_rooms(ret, nb_salles);
+    generate_rooms(ret, nb_salles, nb_petites_salles);
     connect_rooms_union_find(ret); 
 
     return ret ; 
