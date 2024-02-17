@@ -135,20 +135,8 @@ void print_mat(unsigned**mat, int pos_x, int pos_y, int col, int row, int mat_x,
                         case 0:
                             SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
                             break;
-                        case 1:
-                            SDL_SetRenderDrawColor(renderer, 250, 250, 250, 255);
-                            break;
-                        case 2:
-                            SDL_SetRenderDrawColor(renderer, 255,0,0,100);
-                            break;
-                        case 3:
-                            SDL_SetRenderDrawColor(renderer, 0,255,0,100);
-                            break;
-                        case 4:
-                            SDL_SetRenderDrawColor(renderer, 0,0,255,100);
-                            break;
                         default:
-                            SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+                            SDL_SetRenderDrawColor(renderer, 175, 175, 175, 255);
                             break;
                     }
                     //show
