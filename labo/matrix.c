@@ -4,6 +4,15 @@
 #include <stdlib.h>
 
 
+#ifndef SIZE_TILE_X 
+#define SIZE_TILE_X 200 
+#endif 
+
+#ifndef SIZE_TILE_Y 
+#define SIZE_TILE_Y 200 
+#endif 
+
+
 //macro pour taille 
 //max et min des salles generees
 #define ROOM_WIDTH_MIN 3
@@ -11,6 +20,9 @@
 
 #define ROOM_LENGTH_MIN 3 
 #define ROOM_LENGTH_MAX 5
+
+
+OBJ_LIST global_object_list ; 
 
 /*
 structure "statique" du fichier, definis les cases ou les routes vont aboutir pour 
@@ -128,6 +140,20 @@ static void fill_from(S_MATRIX * matrix, unsigned start_i, unsigned start_j, uns
     }
 }//ne pas utiliser hors des fonctions ou elle est appelee
 
+static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned room_widht, unsigned room_length, unsigned id){
+    
+
+    OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
+    obj->i = (rand()%room_widht) + i ; 
+    obj->j = (rand()%room_length) + j ; 
+
+    obj->shift_x = rand()%SIZE_TILE_X ; 
+    obj->shift_y = rand()%SIZE_TILE_Y ; 
+
+    obj->id = id ; 
+
+    list_obj->nb_objects_cur ++ ; 
+}//i'm discovering new lows when it comes to writing code
 
 static void generate_room(S_MATRIX * matrix, unsigned id_room){
 
@@ -160,9 +186,10 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                 if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
                     courant ++ ; 
                     if(courant == choisis){
-                        printf("appel a fill_from i=%u\n",id_room);
+                        //printf("appel a fill_from i=%u\n",id_room);
                         appele = true ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        place_object( &global_object_list, i,j, room_width, room_length, id_room);
                         goto end_loop;
                     }
                 }
@@ -173,6 +200,8 @@ static void generate_room(S_MATRIX * matrix, unsigned id_room){
                 for(unsigned j = 0 ; j < matrix->col; j++){
                     if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        place_object( &global_object_list, i,j, room_width, room_length, id_room);
+
                         goto end_loop; 
                     }
                 }
@@ -212,11 +241,13 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room, MAT_SQUARE 
                 if( candidates_arr.arr[ (i * matrix->col) + j ] != 0 ){
                     courant ++ ; 
                     if(courant == choisis){
-                        printf("appel a fill_from i=%u\n",id_room);
+                       // printf("appel a fill_from i=%u\n",id_room);
                         appele = true ; 
                         petites_salles_ref->i = i ; 
                         petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        place_object( &global_object_list, i,j, room_width, room_length, id_room);
+
                         goto end_loop;
                     }
                 }
@@ -229,6 +260,8 @@ static void generate_room_small(S_MATRIX * matrix, unsigned id_room, MAT_SQUARE 
                         petites_salles_ref->i = i ; 
                         petites_salles_ref->j = j ; 
                         fill_from(matrix, i, j, id_room, room_width, room_length);            
+                        place_object( &global_object_list, i,j, room_width, room_length, id_room);
+
                         goto end_loop; 
                     }
                 }
@@ -305,7 +338,7 @@ static void fill_rcs_tab(S_MATRIX * matrix, S_RCS_TAB * rcstab){
                     unsigned width = 0 ; 
 
                     unsigned tmp_j = j ; 
-                    printf("i=%u, tmp_j=%u\n",i,tmp_j);
+                    //printf("i=%u, tmp_j=%u\n",i,tmp_j);
                     while(matrix->matrix[i][tmp_j] == rcstab->rcs_tab[identifier].identifier){
                        
                         tmp_j++; 
@@ -382,7 +415,7 @@ static void draw_path_rooms(S_MATRIX * matrix, S_ROOM_CS * rcs1, S_ROOM_CS * rcs
             unsigned stop_j = rcs1->south_square.j + (rcs2->north_square.j - rcs1->south_square.j) ;
             
             for(unsigned i = rcs1->south_square.i ; i < stop_i ;i++ ){
-                 printf("case A i=%u, rcs1.south.i=%u\n", i , rcs1->south_square.i);
+                // printf("case A i=%u, rcs1.south.i=%u\n", i , rcs1->south_square.i);
                 if(!matrix->matrix[i][rcs1->south_square.j]){
                     matrix->matrix[i][rcs1->south_square.j] = 1 ; 
                 }
@@ -644,11 +677,13 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsig
 
     S_MATRIX * ret = create_matrix(row, col);
 
+    global_object_list.list = calloc(nb_salles + nb_petites_salles, sizeof(OBJ_INFOS));
+    global_object_list.nb_objects_max = nb_petites_salles + nb_salles ; 
+    global_object_list.nb_objects_cur = 0 ; 
 
     MAT_SQUARE * petites_salles_arr = calloc(nb_petites_salles, sizeof(MAT_SQUARE)); 
     generate_rooms(ret, nb_salles, nb_petites_salles,petites_salles_arr);
     connect_rooms_union_find(ret); 
-
 
     unsigned id_petite_salles = nb_salles + 2 ; 
     for(unsigned salle = 0 ; salle < nb_petites_salles ; salle ++){
@@ -657,6 +692,12 @@ S_MATRIX * generate_matrix(unsigned row, unsigned col, unsigned nb_salles, unsig
 
                 ret->matrix[i][j] = id_petite_salles;
             }
+        }
+    }
+
+    for(unsigned i = 0 ; i < global_object_list.nb_objects_cur ; i++){
+        if( ret->matrix[global_object_list.list[i].i][global_object_list.list[i].j] == id_petite_salles ){
+            global_object_list.list[i].id = id_petite_salles ; 
         }
     }
 
