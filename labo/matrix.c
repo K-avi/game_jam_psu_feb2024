@@ -146,7 +146,7 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
     if(id == 2){
         OBJ_INFOS * obj = &(list_obj->list[list_obj->nb_objects_cur]);
         obj->i = i ; 
-        obj->j = room_length + j - 1 ; 
+        obj->j = j ; 
         obj->shift_x = 0 ; 
         obj->shift_y = 0 ; 
         obj->id = 0; 
@@ -159,8 +159,8 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
             obj->j = (rand()%room_length) + j ; 
         }
 
-        obj->shift_x = rand()%SIZE_TILE_X ; 
-        obj->shift_y = rand()%SIZE_TILE_Y ; 
+        obj->shift_x = 0;
+        obj->shift_y = 0;
 
         obj->id = 1 ; 
 
@@ -170,8 +170,8 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
         obj->i = (rand()%room_widht) + i ; 
         obj->j = (rand()%room_length) + j ; 
 
-        obj->shift_x = rand()%SIZE_TILE_X ; 
-        obj->shift_y = rand()%SIZE_TILE_Y ; 
+        obj->shift_x = 0;
+        obj->shift_y = 0;
 
         obj->id = 3 ; 
 
@@ -181,8 +181,8 @@ static void place_object(OBJ_LIST * list_obj, unsigned i, unsigned j, unsigned r
         obj->i = (rand()%room_widht) + i ; 
         obj->j = (rand()%room_length) + j ; 
 
-        obj->shift_x = rand()%SIZE_TILE_X ; 
-        obj->shift_y = rand()%SIZE_TILE_Y ; 
+        obj->shift_x = 0;
+        obj->shift_y = 0;
 
         obj->id = 2 ; 
 
