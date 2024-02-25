@@ -1,6 +1,8 @@
 La Boullette (de papier)
 
 ==================================
+pour compiler : `make release`
+==================================
 
 Programmeur : 
 	- Guillaume REGNAULT
