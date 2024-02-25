@@ -83,7 +83,7 @@ int main() {
     srand(time(NULL));
 
     intro(renderer, window, font);
-	Timer* timer = create_timer(3, "timer/assets/background.png", "asset/compteur.png", renderer, font);
+	Timer* timer = create_timer(130, "timer/assets/background.png", "asset/compteur.png", renderer, font);
 
 	// Run timer in a separate thread with the callback
 	SDL_AddTimer(1000, timer_callback, timer);
@@ -93,7 +93,7 @@ int main() {
 	SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
-	window = SDL_CreateWindow("test labo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_SIZE_X, WINDOW_SIZE_Y,  SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+	window = SDL_CreateWindow("test labo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_X, WIN_Y,  SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	int nb_col = 15;
