@@ -9,7 +9,7 @@ Programmeur :
 	- Pierre BAUMANN
 	- Ivan MULOT-RADOJCIC
 Direction Artistique :
-	- Alex FAUCHEU
+	- Alex FAUCHEU ( https://github.com/Halexeli créateur de l'ensemble des assets du jeu ) 
 
 ==================================
 
